@@ -1,4 +1,5 @@
 import { useTranslation, Trans } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 
 const Welcome = () => {
