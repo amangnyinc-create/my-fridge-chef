@@ -1,0 +1,160 @@
+{
+    "common": {
+        "add": "추가",
+        "save": "저장",
+        "cancel": "취소",
+        "search": "검색",
+        "settings": "설정",
+        "logout": "로그아웃",
+        "return_to_kitchen": "← 주방으로 돌아가기"
+    },
+    "welcome": {
+        "your_fridge": "당신의 냉장고,",
+        "our_chef": "우리의 셰프.",
+        "description": "버리지 마세요. 시작하세요. <br /> <strong class=\"text-white font-medium\">남은 식재료</strong>를 <strong class=\"text-[#d4af37] font-medium\">럭셔리한 요리</strong>로.",
+        "login": "로그인",
+        "create_account": "계정 생성"
+    },
+    "login": {
+        "welcome_back": "반가워요, 셰프님",
+        "subtitle": "당신의 요리 안식처로 입장하세요.",
+        "email": "이메일",
+        "password": "비밀번호",
+        "forgot_password": "비밀번호를 잊으셨나요?",
+        "enter_kitchen": "주방 입장",
+        "new_chef": "새로운 셰프인가요?",
+        "join_brigade": "팀에 합류하기"
+    },
+    "signup": {
+        "begin_journey": "여정의 시작",
+        "subtitle": "당신의 요리 프로필을 만드세요.",
+        "full_name": "성함",
+        "email": "이메일",
+        "password": "비밀번호",
+        "join_brigade": "팀에 합류하기",
+        "already_chef": "이미 셰프이신가요?",
+        "enter_kitchen": "주방 입장"
+    },
+    "fridge": {
+        "title": "나의 냉장고",
+        "subtitle": "엄선된 식재료",
+        "searchPlaceholder": "식재료 검색...",
+        "addIngredient": "식재료 추가",
+        "itemName": "품목 이름",
+        "itemNamePlaceholder": "예: 파르미지아노 레지아노",
+        "addToPantry": "냉장고에 넣기",
+        "recommendRecipe": "레시피 추천받기",
+        "categories": {
+            "All": "전체",
+            "Veggies": "채소 및 허브",
+            "Fruit": "신선 과일",
+            "Meat": "프리미엄 육류",
+            "Seafood": "해산물",
+            "Dairy": "유제품 및 치즈",
+            "Bakery": "베이커리",
+            "Grains": "곡물 및 파스타",
+            "Frozen": "냉동식품",
+            "Pantry": "상온 보관"
+        },
+        "status": {
+            "fresh": "신선함",
+            "warning": "주의",
+            "expired": "만료됨",
+            "perfect": "최상",
+            "expiring_soon": "곧 만료",
+            "long_term": "장기 보관",
+            "days": "{{count}}일"
+        },
+        "trash": {
+            "title": "식재료 보관함",
+            "subtitle": "최근 삭제된 품목",
+            "empty": "보관함이 비어있습니다.",
+            "restore": "복구",
+            "delete_permanently": "완전 삭제",
+            "clear_all": "모두 비우기"
+        }
+    },
+    "recipes": {
+        "title": "셰프의 테이블",
+        "subtitle": "AI 요리 큐레이터",
+        "available_ingredients": "사용 가능한 식재료",
+        "cravings": "지금 먹고 싶은 것",
+        "cravings_placeholder": "예: 소박한 이탈리안 파스타...",
+        "curate_menu": "메뉴 큐레이팅",
+        "consulting": "셰프 AI와 상의 중...",
+        "recommendations": "추천 요리",
+        "match": "{{percent}} 일치",
+        "time": "시간",
+        "difficulty": "난이도",
+        "easy": "쉬움",
+        "medium": "보통",
+        "hard": "어려움",
+        "start_cooking": "요리 시작하기",
+        "cooking_mode": "요리 모드",
+        "prev": "이전",
+        "next": "다음",
+        "finish": "완성 및 즐기기",
+        "timer_done": "타이머 완료!",
+        "chef_tip": "셰프의 팁",
+        "chef_tip_desc": "최고의 맛을 위해 정성을 다해 준비해 보세요.",
+        "ingredients": "재료",
+        "overview": "요리 개요",
+        "in_fridge": "냉장고에 있음",
+        "missing": "부족함"
+    },
+    "scan": {
+        "title": "비주얼 로그",
+        "subtitle": "자동 감지 스캔",
+        "align_frame": "식재료를 프레임 안에 맞춰주세요",
+        "tap_to_scan": "탭하여 스캔",
+        "analysis_complete": "분석 완료",
+        "detected_items": "감지된 품목",
+        "confidence": "{{level}} 신뢰도",
+        "confirm_add": "확인 및 추가"
+    },
+    "ingredients": {
+        "whole_milk": "유기농 우유",
+        "truffle_eggs": "트러플 계란",
+        "organic_kale": "유기농 케일",
+        "wagyu_beef": "와규 소고기",
+        "avocados": "아보카도",
+        "greek_yogurt": "그릭 요거트",
+        "wild_salmon": "야생 연어",
+        "sourdough_bread": "천연 발효빵",
+        "aged_balsamic": "발사믹 식초",
+        "pistachio_gelato": "피스타치오 젤라또",
+        "artisanal_linguine": "수제 링귀니",
+        "banana": "바나나",
+        "fresh_basil": "신선한 바질",
+        "extra_virgin_olive_oil": "엑스트라 버진 올리브유",
+        "shallots": "샬롯",
+        "parmigiano_reggiano": "파르미지아노 레지아노",
+        "free_range_eggs": "방사 유정란",
+        "tuscan_kale": "투스칸 케일"
+    },
+    "navbar": {
+        "home": "홈",
+        "chef": "셰프",
+        "scan": "스캔",
+        "list": "목록"
+    },
+    "profile": {
+        "title": "나의 주방",
+        "subtitle": "셰프 프로필",
+        "memberRole": "프리미엄 멤버",
+        "preferences": "환경 설정",
+        "dietary": "식단 조절",
+        "notifications": "알림",
+        "account": "계정",
+        "personal": "개인 정보",
+        "security": "보안",
+        "appSettings": "앱 설정",
+        "language": "언어 설정"
+    },
+    "shopping": {
+        "title": "장보기 목록",
+        "subtitle": "필요한 식재료",
+        "placeholder": "식재료를 추가하세요...",
+        "stockFridge": "냉장고 채우기"
+    }
+}

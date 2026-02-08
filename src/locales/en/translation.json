@@ -1,0 +1,160 @@
+{
+    "common": {
+        "add": "Add",
+        "save": "Save",
+        "cancel": "Cancel",
+        "search": "Search",
+        "settings": "Settings",
+        "logout": "Log Out",
+        "return_to_kitchen": "← Return to Kitchen"
+    },
+    "welcome": {
+        "your_fridge": "Your Fridge,",
+        "our_chef": "Our Chef.",
+        "description": "Stop Wasting. Start Creating. <br /> Turn <strong class=\"text-white font-medium\">leftovers</strong> into <strong class=\"text-[#d4af37] font-medium\">luxury</strong>.",
+        "login": "Login",
+        "create_account": "Create Account"
+    },
+    "login": {
+        "welcome_back": "Welcome Back",
+        "subtitle": "Enter your culinary sanctuary.",
+        "email": "Email",
+        "password": "Password",
+        "forgot_password": "Forgot password?",
+        "enter_kitchen": "Enter Kitchen",
+        "new_chef": "New Chef?",
+        "join_brigade": "Join the Brigade"
+    },
+    "signup": {
+        "begin_journey": "Begin Journey",
+        "subtitle": "Create your culinary profile.",
+        "full_name": "Full Name",
+        "email": "Email",
+        "password": "Password",
+        "join_brigade": "Join the Brigade",
+        "already_chef": "Already a Chef?",
+        "enter_kitchen": "Enter Kitchen"
+    },
+    "fridge": {
+        "title": "My Pantry",
+        "subtitle": "Curated Ingredients",
+        "searchPlaceholder": "Search pantry...",
+        "addIngredient": "Add Ingredient",
+        "itemName": "Item Name",
+        "itemNamePlaceholder": "e.g. Parmigiano Reggiano",
+        "addToPantry": "Add to Pantry",
+        "recommendRecipe": "Recommend Recipe",
+        "categories": {
+            "All": "All",
+            "Veggies": "Vegetables & Herbs",
+            "Fruit": "Fresh Fruit",
+            "Meat": "Premium Meat",
+            "Seafood": "Seafood",
+            "Dairy": "Dairy & Cheese",
+            "Bakery": "Bakery",
+            "Grains": "Grains & Pasta",
+            "Frozen": "Frozen",
+            "Pantry": "Pantry"
+        },
+        "status": {
+            "fresh": "Fresh",
+            "warning": "Warning",
+            "expired": "Expired",
+            "perfect": "Perfect",
+            "expiring_soon": "Expiring Soon",
+            "long_term": "Long Term",
+            "days": "{{count}} days"
+        },
+        "trash": {
+            "title": "Ingredient Trash",
+            "subtitle": "Recently deleted items",
+            "empty": "Your trash is empty.",
+            "restore": "Restore",
+            "delete_permanently": "Delete Permanently",
+            "clear_all": "Clear All"
+        }
+    },
+    "recipes": {
+        "title": "Chef's Table",
+        "subtitle": "AI Culinary Curator",
+        "available_ingredients": "Available Ingredients",
+        "cravings": "Current Cravings",
+        "cravings_placeholder": "e.g., Rustic Italian pasta...",
+        "curate_menu": "Curate Menu",
+        "consulting": "Consulting Chef AI...",
+        "recommendations": "Recommendations",
+        "match": "{{percent}} MATCH",
+        "time": "Time",
+        "difficulty": "Difficulty",
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard",
+        "start_cooking": "Start Cooking Mode",
+        "cooking_mode": "Cooking Mode",
+        "prev": "Previous",
+        "next": "Next Step",
+        "finish": "Finish & Enjoy",
+        "timer_done": "Timer Done!",
+        "chef_tip": "Chef's Tip",
+        "chef_tip_desc": "Take your time with this step to ensure the best flavor profile.",
+        "ingredients": "Ingredients",
+        "overview": "Overview",
+        "in_fridge": "In Fridge",
+        "missing": "Missing"
+    },
+    "scan": {
+        "title": "Visual Log",
+        "subtitle": "Auto-Detection",
+        "align_frame": "Align your fridge items within the frame",
+        "tap_to_scan": "Tap to Scan",
+        "analysis_complete": "Analysis Complete",
+        "detected_items": "Detected Items",
+        "confidence": "{{level}} Confidence",
+        "confirm_add": "Confirm & Add"
+    },
+    "ingredients": {
+        "whole_milk": "Whole Milk",
+        "truffle_eggs": "Truffle Eggs",
+        "organic_kale": "Organic Kale",
+        "wagyu_beef": "Wagyu Beef",
+        "avocados": "Avocados",
+        "greek_yogurt": "Greek Yogurt",
+        "wild_salmon": "Wild Salmon",
+        "sourdough_bread": "Sourdough Bread",
+        "aged_balsamic": "Aged Balsamic",
+        "pistachio_gelato": "Pistachio Gelato",
+        "artisanal_linguine": "Artisanal Linguine",
+        "banana": "Banana",
+        "fresh_basil": "Fresh Basil",
+        "extra_virgin_olive_oil": "Extra Virgin Olive Oil",
+        "shallots": "Shallots",
+        "parmigiano_reggiano": "Parmigiano Reggiano",
+        "free_range_eggs": "Free Range Eggs",
+        "tuscan_kale": "Tuscan Kale"
+    },
+    "navbar": {
+        "home": "Home",
+        "chef": "Chef",
+        "scan": "Scan",
+        "list": "List"
+    },
+    "profile": {
+        "title": "My Kitchen",
+        "subtitle": "Chef Profile",
+        "memberRole": "Premium Member",
+        "preferences": "Preferences",
+        "dietary": "Dietary Restrictions",
+        "notifications": "Notifications",
+        "account": "Account",
+        "personal": "Personal Details",
+        "security": "Security",
+        "appSettings": "App Settings",
+        "language": "Language Settings"
+    },
+    "shopping": {
+        "title": "Provisioning",
+        "subtitle": "Essential Ingredients",
+        "placeholder": "Add item to list...",
+        "stockFridge": "Stock Fridge"
+    }
+}
