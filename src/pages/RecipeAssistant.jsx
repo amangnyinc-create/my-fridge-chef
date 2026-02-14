@@ -147,16 +147,9 @@ const RecipeAssistant = () => {
                 Return a JSON array of 3 objects. Each object MUST match this structure exactly:
                 {
                     "id": number,
-                    "title": "string",
-                    "time": "string (e.g. 30m)",
-                    "difficulty": "string (Easy, Medium, Hard)",
-                    "match": "string (e.g. 95%)",
-                    "image": "string (use a placeholder unsplash URL)",
-                    "description": "string (appetizing description)",
-                    "steps": ["string", "string"...],
-                    "stepTimers": [number, number...] (minutes for each step, 0 if none),
-                    "stepTips": ["string", "string"...] (chef's tip for each step),
-                    "ingredients": [{"name": "string", "available": boolean}]
+                    ...
+                    "ingredients": [{"name": "string", "available": boolean}] 
+                    // IMPORTANT: Set 'available' to true ONLY if the ingredient is in the provided list: ${selected.join(', ')}. Otherwise false.
                 }
                 ENSURE JSON IS VALID. NO MARKDOWN CODE BLOCKS.
             `;
@@ -282,8 +275,16 @@ const RecipeAssistant = () => {
                         <ul className="space-y-3">
                             {activeRecipe.ingredients.map((ing, idx) => (
                                 <li key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white border border-gray-50 shadow-sm">
-                                    <span className="font-medium text-[#1B263B]">{translateIngredient(ing.name)}</span>
-                                    <span className="text-xs font-bold text-[#0D47A1] bg-[#E3F2FD] px-2 py-1 rounded">{t('recipes.in_fridge')}</span>
+                                    <span className={`font-medium ${ing.available ? 'text-[#1B263B]' : 'text-gray-400'}`}>{translateIngredient(ing.name)}</span>
+                                    {ing.available ? (
+                                        <span className="text-xs font-bold text-[#0D47A1] bg-[#E3F2FD] px-2 py-1 rounded flex items-center gap-1">
+                                            <CheckCircle2 size={10} /> {t('recipes.in_fridge')}
+                                        </span>
+                                    ) : (
+                                        <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                                            Missing
+                                        </span>
+                                    )}
                                 </li>
                             ))}
                         </ul>
