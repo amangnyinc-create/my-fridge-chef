@@ -44,59 +44,43 @@ const FridgeScanner = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const [facingMode, setFacingMode] = useState('environment');
-    const [cameras, setCameras] = useState([]);
-    const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
-
-    React.useEffect(() => {
-        // 1. Get List of Cameras
-        const getCameras = async () => {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                setCameras(videoDevices);
-
-                // Try to find back camera to start with
-                const backCameraIndex = videoDevices.findIndex(device =>
-                    device.label.toLowerCase().includes('back') ||
-                    device.label.toLowerCase().includes('environment')
-                );
-                if (backCameraIndex !== -1) setCurrentCameraIndex(backCameraIndex);
-            } catch (err) {
-                console.error("Error listing cameras:", err);
-            }
-        };
-        getCameras();
-    }, []);
 
     React.useEffect(() => {
         startCamera();
         return () => stopCamera();
-    }, [currentCameraIndex, cameras]); // Restart when camera index changes
+    }, [facingMode]);
 
     const startCamera = async () => {
-        if (cameras.length === 0) return; // Wait until cameras are loaded
-
-        stopCamera(); // Ensure previous stream is stopped
-
+        stopCamera();
         try {
-            const deviceId = cameras[currentCameraIndex].deviceId;
-            const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { deviceId: { exact: deviceId } }
+            // Explicitly request the specific camera (Back/Environment first)
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { exact: facingMode }
+                }
             });
-            setStream(mediaStream);
+            setStream(stream);
             if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
+                videoRef.current.srcObject = stream;
             }
         } catch (err) {
-            console.error("Camera error:", err);
-            // Fallback: try default if exact device fails
+            console.log("Specific facingMode failed, trying loose constraint...");
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                // Return to loose constraint if exact fails
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: facingMode }
+                });
                 setStream(stream);
                 if (videoRef.current) videoRef.current.srcObject = stream;
-            } catch (e) {
-                console.error("Fallback failed:", e);
-                alert("Camera access denied.");
+            } catch (e2) {
+                console.error("Loose constraint failed, trying default...", e2);
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    setStream(stream);
+                    if (videoRef.current) videoRef.current.srcObject = stream;
+                } catch (e3) {
+                    alert(t('scan.camera_error') || "Camera access denied. Please check permissions.");
+                }
             }
         }
     };
@@ -109,11 +93,7 @@ const FridgeScanner = () => {
     };
 
     const toggleCamera = () => {
-        if (cameras.length <= 1) {
-            alert(t('scan.only_one_camera') || "No other camera found on this device.");
-            return;
-        }
-        setCurrentCameraIndex(prev => (prev + 1) % cameras.length);
+        setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
     };
 
     const analyzeImageWithGemini = async (imageBase64) => {
