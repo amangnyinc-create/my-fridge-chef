@@ -123,7 +123,7 @@ const FridgeScanner = () => {
 
         } catch (error) {
             console.error("AI Analysis Failed:", error);
-            alert("Failed to analyze image. Please try again.");
+            alert(t('scan.analysis_error') || `AI Analysis Failed: ${error.message || "Please check internet & try again."}`);
         } finally {
             setIsAnalyzing(false);
         }
@@ -134,11 +134,31 @@ const FridgeScanner = () => {
             const context = canvasRef.current.getContext('2d');
             const { videoWidth, videoHeight } = videoRef.current;
 
-            canvasRef.current.width = videoWidth;
-            canvasRef.current.height = videoHeight;
-            context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+            // Resize Logic: Max dimension 800px to reduce payload size
+            const MAX_SIZE = 800;
+            let width = videoWidth;
+            let height = videoHeight;
 
-            const imageBase64 = canvasRef.current.toDataURL('image/jpeg');
+            if (width > height) {
+                if (width > MAX_SIZE) {
+                    height = Math.round(height * (MAX_SIZE / width));
+                    width = MAX_SIZE;
+                }
+            } else {
+                if (height > MAX_SIZE) {
+                    width = Math.round(width * (MAX_SIZE / height));
+                    height = MAX_SIZE;
+                }
+            }
+
+            canvasRef.current.width = width;
+            canvasRef.current.height = height;
+
+            // Draw resized image
+            context.drawImage(videoRef.current, 0, 0, width, height);
+
+            // Compress heavily (quality 0.7)
+            const imageBase64 = canvasRef.current.toDataURL('image/jpeg', 0.7);
             analyzeImageWithGemini(imageBase64);
         }
     };
