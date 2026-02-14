@@ -36,30 +36,66 @@ const Layout = ({ children }) => {
     );
 };
 
+// Error Boundary for debugging
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 text-center bg-white min-h-screen flex flex-col items-center justify-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Application Error</h1>
+          <p className="mb-4 text-gray-600">Something went wrong. Here is the error:</p>
+          <pre className="text-left bg-gray-100 p-4 rounded text-xs overflow-auto max-w-full mb-6 border border-red-200">
+            {this.state.error && this.state.error.toString()}
+          </pre>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg"
+          >
+            Reload App
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
     return (
-        <AuthProvider>
-            <PantryProvider>
-                <Router>
-                    <div className="min-h-screen bg-[#F5F5DC] text-gray-800 font-sans pb-20">
-                        <Layout>
-                            <Routes>
-                                <Route path="/" element={<Welcome />} />
-                                <Route path="/login" element={<Login />} />
-                                <Route path="/signup" element={<SignUp />} />
+        <ErrorBoundary>
+            <AuthProvider>
+                <PantryProvider>
+                    <Router>
+                        <div className="min-h-screen bg-[#F5F5DC] text-gray-800 font-sans pb-20">
+                            <Layout>
+                                <Routes>
+                                    <Route path="/" element={<Welcome />} />
+                                    <Route path="/login" element={<Login />} />
+                                    <Route path="/signup" element={<SignUp />} />
 
-                                {/* Protected Routes */}
-                                <Route path="/fridge" element={<ProtectedRoute><Fridge /></ProtectedRoute>} />
-                                <Route path="/recipes" element={<ProtectedRoute><RecipeAssistant /></ProtectedRoute>} />
-                                <Route path="/shopping" element={<ProtectedRoute><ShoppingList /></ProtectedRoute>} />
-                                <Route path="/scan" element={<ProtectedRoute><FridgeScanner /></ProtectedRoute>} />
-                                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                            </Routes>
-                        </Layout>
-                    </div>
-                </Router>
-            </PantryProvider>
-        </AuthProvider>
+                                    {/* Protected Routes */}
+                                    <Route path="/fridge" element={<ProtectedRoute><Fridge /></ProtectedRoute>} />
+                                    <Route path="/recipes" element={<ProtectedRoute><RecipeAssistant /></ProtectedRoute>} />
+                                    <Route path="/shopping" element={<ProtectedRoute><ShoppingList /></ProtectedRoute>} />
+                                    <Route path="/scan" element={<ProtectedRoute><FridgeScanner /></ProtectedRoute>} />
+                                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                                </Routes>
+                            </Layout>
+                        </div>
+                    </Router>
+                </PantryProvider>
+            </AuthProvider>
+        </ErrorBoundary>
     );
 }
 
