@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Welcome from './pages/Welcome';
 import Login from './pages/Login';
@@ -10,6 +10,17 @@ import ShoppingList from './pages/ShoppingList';
 import FridgeScanner from './pages/FridgeScanner';
 import Profile from './pages/Profile';
 
+import { PantryProvider } from './context/PantryContext';
+import { AuthProvider, useAuth } from './context/AuthContext'; // Import Auth
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+    const { user } = useAuth();
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+    return children;
+};
 
 // Create a layout component to conditionally render Navbar
 const Layout = ({ children }) => {
@@ -25,28 +36,30 @@ const Layout = ({ children }) => {
     );
 };
 
-import { PantryProvider } from './context/PantryContext';
-
 function App() {
     return (
-        <PantryProvider>
-            <Router>
-                <div className="min-h-screen bg-[#F5F5DC] text-gray-800 font-sans pb-20">
-                    <Layout>
-                        <Routes>
-                            <Route path="/" element={<Welcome />} />
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/signup" element={<SignUp />} />
-                            <Route path="/fridge" element={<Fridge />} />
-                            <Route path="/recipes" element={<RecipeAssistant />} />
-                            <Route path="/shopping" element={<ShoppingList />} />
-                            <Route path="/scan" element={<FridgeScanner />} />
-                            <Route path="/profile" element={<Profile />} />
-                        </Routes>
-                    </Layout>
-                </div>
-            </Router>
-        </PantryProvider>
+        <AuthProvider>
+            <PantryProvider>
+                <Router>
+                    <div className="min-h-screen bg-[#F5F5DC] text-gray-800 font-sans pb-20">
+                        <Layout>
+                            <Routes>
+                                <Route path="/" element={<Welcome />} />
+                                <Route path="/login" element={<Login />} />
+                                <Route path="/signup" element={<SignUp />} />
+
+                                {/* Protected Routes */}
+                                <Route path="/fridge" element={<ProtectedRoute><Fridge /></ProtectedRoute>} />
+                                <Route path="/recipes" element={<ProtectedRoute><RecipeAssistant /></ProtectedRoute>} />
+                                <Route path="/shopping" element={<ProtectedRoute><ShoppingList /></ProtectedRoute>} />
+                                <Route path="/scan" element={<ProtectedRoute><FridgeScanner /></ProtectedRoute>} />
+                                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                            </Routes>
+                        </Layout>
+                    </div>
+                </Router>
+            </PantryProvider>
+        </AuthProvider>
     );
 }
 

@@ -3,8 +3,11 @@ import { User, Settings, LogOut, ChevronRight, Heart, Bell, Shield, Globe } from
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import { useAuth } from '../context/AuthContext';
+
 const Profile = () => {
     const { t, i18n } = useTranslation();
+    const { user, logout } = useAuth();
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
@@ -20,11 +23,11 @@ const Profile = () => {
             {/* Profile Card */}
             <div className="bg-white p-6 rounded-3xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 mb-8 flex items-center gap-5">
                 <div className="w-20 h-20 rounded-full bg-[#1B263B] text-[#C5A059] flex items-center justify-center font-serif text-3xl font-bold shadow-lg shadow-[#1B263B]/20">
-                    P
+                    {user?.name?.charAt(0) || 'C'}
                 </div>
                 <div>
-                    <h2 className="text-xl font-serif font-medium text-[#1B263B]">Park Chef</h2>
-                    <p className="text-gray-400 text-sm mb-2">{t('profile.memberRole')}</p>
+                    <h2 className="text-xl font-serif font-medium text-[#1B263B]">{user?.name || 'Chef'}</h2>
+                    <p className="text-gray-400 text-sm mb-2">{user?.email || t('profile.memberRole')}</p>
                     <div className="flex gap-2">
                         <span className="px-2 py-1 bg-[#E3F2FD] text-[#0D47A1] text-[10px] font-bold uppercase tracking-wider rounded-md">Pro Plan</span>
                     </div>
@@ -77,12 +80,12 @@ const Profile = () => {
                     </div>
                 </section>
 
-                <Link to="/">
-                    <button className="w-full bg-white border border-[#FEE2E2] text-[#7F1D1D] py-4 rounded-xl font-medium shadow-sm hover:bg-[#FEF2F2] transition-colors flex items-center justify-center gap-2 mt-4">
-                        <LogOut size={18} />
-                        <span>{t('common.logout')}</span>
-                    </button>
-                </Link>
+                <button
+                    onClick={logout}
+                    className="w-full bg-white border border-[#FEE2E2] text-[#7F1D1D] py-4 rounded-xl font-medium shadow-sm hover:bg-[#FEF2F2] transition-colors flex items-center justify-center gap-2 mt-4">
+                    <LogOut size={18} />
+                    <span>{t('common.logout')}</span>
+                </button>
             </div>
         </div>
     );

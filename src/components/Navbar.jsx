@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ChefHat, ShoppingCart, Camera } from 'lucide-react';
+import { Home, ChefHat, ShoppingCart, Camera, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
@@ -28,6 +27,7 @@ const Navbar = () => {
             <NavItem to="/recipes" icon={ChefHat} label={t('navbar.chef')} active={path === '/recipes'} />
             <NavItem to="/scan" icon={Camera} label={t('navbar.scan')} active={path === '/scan'} />
             <NavItem to="/shopping" icon={ShoppingCart} label={t('navbar.list')} active={path === '/shopping'} />
+            <NavItem to="/profile" icon={User} label={t('profile.title') || "Profile"} active={path === '/profile'} />
         </div>
     );
 };

@@ -4,20 +4,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 
+import { useAuth } from '../context/AuthContext';
+
 const Login = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { login } = useAuth(); // Use Auth Context
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
+        setError('');
+        try {
+            await login(email, password);
             navigate('/fridge');
-        }, 1500);
+        } catch (err) {
+            setError(t('login.error') || "Invalid email or password");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -35,6 +44,7 @@ const Login = () => {
                 <p className="text-[#1B263B]/60 font-sans text-sm tracking-wide">{t('login.subtitle')}</p>
             </div>
 
+            {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg text-center mb-6 font-medium">{error}</div>}
             <form onSubmit={handleLogin} className="space-y-6 max-w-sm mx-auto w-full">
                 <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-[#1B263B] ml-1">{t('login.email')}</label>
