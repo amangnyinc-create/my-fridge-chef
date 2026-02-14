@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ShoppingCart, Plus, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Plus, Check, Trash2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePantry } from '../context/PantryContext';
 
@@ -17,13 +17,21 @@ const ShoppingList = () => {
         return translated === key ? name : translated;
     };
 
-    const [items, setItems] = useState([
-        { id: 1, name: 'Parmigiano Reggiano', category: 'Dairy', checked: false },
-        { id: 2, name: 'Fresh Basil', category: 'Veggies', checked: false },
-        { id: 3, name: 'Extra Virgin Olive Oil', category: 'Pantry', checked: false },
-        { id: 4, name: 'Shallots', category: 'Veggies', checked: true },
-        { id: 5, name: 'Wagyu Beef', category: 'Meat', checked: false },
-    ]);
+    const [items, setItems] = useState(() => {
+        const saved = localStorage.getItem('myShoppingList');
+        if (saved) return JSON.parse(saved);
+        return [
+            { id: 1, name: 'Parmigiano Reggiano', category: 'Dairy', checked: false },
+            { id: 2, name: 'Fresh Basil', category: 'Veggies', checked: false },
+            { id: 3, name: 'Extra Virgin Olive Oil', category: 'Pantry', checked: false },
+            { id: 4, name: 'Shallots', category: 'Veggies', checked: true },
+            { id: 5, name: 'Wagyu Beef', category: 'Meat', checked: false },
+        ];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('myShoppingList', JSON.stringify(items));
+    }, [items]);
 
     const [newItemText, setNewItemText] = useState('');
 
@@ -82,9 +90,20 @@ const ShoppingList = () => {
 
     return (
         <div className="p-6 pb-32 min-h-screen bg-[#FAF9F6] font-sans">
-            <header className="mb-8 pt-2">
-                <h1 className="text-3xl font-serif font-semibold text-[#1B263B] mb-1">{t('shopping.title')}</h1>
-                <p className="text-[#C5A059] text-xs font-medium tracking-widest uppercase">{t('shopping.subtitle')}</p>
+            <header className="mb-8 pt-2 flex justify-between items-end">
+                <div>
+                    <h1 className="text-3xl font-serif font-semibold text-[#1B263B] mb-1">{t('shopping.title')}</h1>
+                    <p className="text-[#C5A059] text-xs font-medium tracking-widest uppercase">{t('shopping.subtitle')}</p>
+                </div>
+                {items.length > 0 && (
+                    <button
+                        onClick={() => { if (window.confirm(t('shopping.clear_confirm') || "Clear shopping list?")) setItems([]); }}
+                        className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-all"
+                        title="Clear List"
+                    >
+                        <Trash2 size={20} />
+                    </button>
+                )}
             </header>
 
             <div className="bg-white rounded-2xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] p-4 mb-8 flex items-center gap-4 border border-gray-50 focus-within:border-[#C5A059] focus-within:shadow-md transition-all">
@@ -137,6 +156,12 @@ const ShoppingList = () => {
                                                 {translateIngredient(item.name)}
                                             </span>
                                         </div>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
+                                            className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all active:scale-95"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
                                     </div>
                                 ))}
                             </div>
