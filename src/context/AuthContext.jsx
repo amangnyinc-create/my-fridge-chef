@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import i18n from '../i18n';
 
 const AuthContext = createContext();
 
@@ -26,7 +27,14 @@ export const AuthProvider = ({ children }) => {
                         throw new Error('Email already registered');
                     }
 
-                    const newUser = { name, email, password };
+                    const newUser = {
+                        name,
+                        email,
+                        password,
+                        language: i18n.language, // Save current language
+                        notifications: true,
+                        dietaryPreferences: []
+                    };
                     users.push(newUser);
                     localStorage.setItem('users', JSON.stringify(users));
 
@@ -52,6 +60,12 @@ export const AuthProvider = ({ children }) => {
 
                     if (foundUser) {
                         const { password, ...userSession } = foundUser;
+
+                        // Apply stored language preference
+                        if (userSession.language) {
+                            i18n.changeLanguage(userSession.language);
+                        }
+
                         localStorage.setItem('currentUser', JSON.stringify(userSession));
                         setUser(userSession);
                         resolve(userSession);
@@ -81,12 +95,20 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('users', JSON.stringify(newUsers));
     };
 
+    const changePassword = (newPassword) => {
+        if (!user) return;
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const newUsers = users.map(u => u.email === user.email ? { ...u, password: newPassword } : u);
+        localStorage.setItem('users', JSON.stringify(newUsers));
+    };
+
     const value = {
         user,
         signup,
         login,
         logout,
         updateProfile,
+        changePassword,
         loading
     };
 

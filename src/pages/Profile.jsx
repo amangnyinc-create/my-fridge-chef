@@ -7,11 +7,16 @@ import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
     const { t, i18n } = useTranslation();
-    const { user, logout, updateProfile } = useAuth();
+    const { user, logout, updateProfile, changePassword } = useAuth();
     const [showDietary, setShowDietary] = useState(false);
+    const [showPersonal, setShowPersonal] = useState(false);
+    const [showSecurity, setShowSecurity] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
+        updateProfile({ language: lng });
     };
 
     return (
@@ -71,7 +76,23 @@ const Profile = () => {
                             </div>
                         )}
                         <div className="h-px bg-gray-50 mx-4"></div>
-                        <MenuItem icon={Bell} label={t('profile.notifications')} value="On" />
+                        <MenuItem
+                            icon={Bell}
+                            label={t('profile.notifications')}
+                            customRight={
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // Default to true if undefined
+                                        const current = user?.notifications !== false;
+                                        updateProfile({ notifications: !current });
+                                    }}
+                                    className={`w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${user?.notifications !== false ? 'bg-[#1B263B]' : 'bg-gray-200'}`}
+                                >
+                                    <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ${user?.notifications !== false ? 'translate-x-5' : 'translate-x-0'}`} />
+                                </button>
+                            }
+                        />
                         <div className="h-px bg-gray-50 mx-4"></div>
                         {/* Language Selector */}
                         <div className="p-4 flex items-center justify-between group">
@@ -102,11 +123,82 @@ const Profile = () => {
                 <section>
                     <h3 className="text-xs font-bold uppercase tracking-widest text-[#1B263B] mb-3 ml-2">{t('profile.account')}</h3>
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-50 overflow-hidden">
-                        <MenuItem icon={User} label={t('profile.personal')} />
+                        <MenuItem icon={User} label={t('profile.personal')} onClick={() => setShowPersonal(!showPersonal)} />
+                        {showPersonal && (
+                            <div className="p-4 bg-gray-50/50 border-t border-gray-100 space-y-3 animate-fade-in">
+                                <label className="block text-xs font-bold uppercase text-gray-400 tracking-wider">Display Name</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-3 rounded-lg border border-gray-200 text-sm focus:border-[#C5A059] outline-none transition-all"
+                                    defaultValue={user?.name}
+                                    onBlur={(e) => {
+                                        if (e.target.value !== user?.name) {
+                                            updateProfile({ name: e.target.value });
+                                        }
+                                    }}
+                                />
+                                <label className="block text-xs font-bold uppercase text-gray-400 tracking-wider mt-2">Email (Read Only)</label>
+                                <input
+                                    type="email"
+                                    className="w-full p-3 rounded-lg border border-gray-200 text-sm bg-gray-100 text-gray-500 cursor-not-allowed"
+                                    value={user?.email || ''}
+                                    readOnly
+                                />
+                            </div>
+                        )}
                         <div className="h-px bg-gray-50 mx-4"></div>
-                        <MenuItem icon={Shield} label={t('profile.security')} />
+                        <MenuItem icon={Shield} label={t('profile.security')} onClick={() => setShowSecurity(!showSecurity)} />
+                        {showSecurity && (
+                            <div className="p-4 bg-gray-50/50 border-t border-gray-100 space-y-3 animate-fade-in">
+                                <label className="block text-xs font-bold uppercase text-gray-400 tracking-wider">New Password</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="password"
+                                        className="flex-1 p-3 rounded-lg border border-gray-200 text-sm focus:border-[#C5A059] outline-none transition-all"
+                                        placeholder="Min 6 characters"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            if (newPassword.length >= 6) {
+                                                changePassword(newPassword);
+                                                alert(t('profile.password_updated') || "Password updated successfully!");
+                                                setShowSecurity(false);
+                                                setNewPassword('');
+                                            } else {
+                                                alert("Password becomes safer with 6+ characters!");
+                                            }
+                                        }}
+                                        className="bg-[#1B263B] text-[#C5A059] px-4 rounded-lg font-bold text-xs uppercase disabled:opacity-50 hover:bg-[#111] transition-colors"
+                                        disabled={!newPassword}
+                                    >
+                                        Update
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         <div className="h-px bg-gray-50 mx-4"></div>
-                        <MenuItem icon={Settings} label={t('profile.appSettings')} />
+                        <MenuItem icon={Settings} label={t('profile.appSettings')} onClick={() => setShowSettings(!showSettings)} />
+                        {showSettings && (
+                            <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center animate-fade-in">
+                                <span className="text-xs font-bold uppercase text-gray-500 tracking-wider">Measurement Unit</span>
+                                <div className="flex bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                                    <button
+                                        onClick={() => updateProfile({ unitSystem: 'metric' })}
+                                        className={`px-4 py-2 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${user?.unitSystem !== 'imperial' ? 'bg-[#1B263B] text-[#C5A059] shadow-sm' : 'text-gray-400 hover:bg-gray-50'}`}
+                                    >
+                                        Metric (g/ml)
+                                    </button>
+                                    <button
+                                        onClick={() => updateProfile({ unitSystem: 'imperial' })}
+                                        className={`px-4 py-2 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${user?.unitSystem === 'imperial' ? 'bg-[#1B263B] text-[#C5A059] shadow-sm' : 'text-gray-400 hover:bg-gray-50'}`}
+                                    >
+                                        Imperial (oz/lb)
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -121,7 +213,7 @@ const Profile = () => {
     );
 };
 
-const MenuItem = ({ icon: Icon, label, value, onClick }) => (
+const MenuItem = ({ icon: Icon, label, value, onClick, customRight }) => (
     <button onClick={onClick} className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors group">
         <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-[#F9F7F2] flex items-center justify-center text-[#1B263B] group-hover:bg-[#1B263B] group-hover:text-[#C5A059] transition-colors">
@@ -129,10 +221,12 @@ const MenuItem = ({ icon: Icon, label, value, onClick }) => (
             </div>
             <span className="text-sm font-medium text-gray-700">{label}</span>
         </div>
-        <div className="flex items-center gap-2">
-            {value && <span className="text-xs font-medium text-[#C5A059]">{value}</span>}
-            <ChevronRight size={16} className="text-gray-300" />
-        </div>
+        {customRight ? customRight : (
+            <div className="flex items-center gap-2">
+                {value && <span className="text-xs font-medium text-[#C5A059]">{value}</span>}
+                <ChevronRight size={16} className="text-gray-300" />
+            </div>
+        )}
     </button>
 );
 

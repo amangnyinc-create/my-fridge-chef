@@ -8,6 +8,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // Timer Component
 const TimerButton = ({ initialMinutes }) => {
     const { t } = useTranslation();
+    const { user } = useAuth();
     const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
     const [isActive, setIsActive] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
@@ -18,12 +19,32 @@ const TimerButton = ({ initialMinutes }) => {
             interval = setInterval(() => {
                 setTimeLeft(timeLeft => timeLeft - 1);
             }, 1000);
-        } else if (timeLeft === 0) {
+        } else if (timeLeft === 0 && isActive) {
             setIsFinished(true);
             setIsActive(false);
+
+            // Notification Logic
+            if (user?.notifications !== false) {
+                // Try playing a simple beep sound using AudioContext or Speech
+                if ('speechSynthesis' in window) {
+                    const msg = new SpeechSynthesisUtterance(t('recipes.timer_finished') || "Timer Finished!");
+                    window.speechSynthesis.speak(msg);
+                }
+
+                // Also trigger browser notification if permission granted
+                if (Notification.permission === "granted") {
+                    new Notification("My Fridge Chef", { body: t('recipes.timer_finished') || "Your timer is done!" });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            new Notification("My Fridge Chef", { body: t('recipes.timer_finished') || "Your timer is done!" });
+                        }
+                    });
+                }
+            }
         }
         return () => clearInterval(interval);
-    }, [isActive, timeLeft]);
+    }, [isActive, timeLeft, user, t]);
 
     const toggleTimer = () => setIsActive(!isActive);
     const resetTimer = () => {
@@ -114,11 +135,13 @@ const RecipeAssistant = () => {
             const currentLang = i18n?.language || 'en';
             const lang = currentLang.startsWith('ko') ? 'Korean' : 'English';
             const dietary = user?.dietaryPreferences?.join(', ') || 'None';
+            const unitSystem = user?.unitSystem === 'imperial' ? 'Imperial (oz/lb/Fahrenheit)' : 'Metric (g/ml/Celsius)';
 
             const prompt = `
                 You are a world-class chef. Create 3 distinct recipes based on these ingredients: ${selected.join(', ')}.
                 User cravings/notes: "${userCravings}".
                 Dietary Restrictions/Allergies: "${dietary}".
+                Preferred Measurement System: ${unitSystem}.
                 Target Language: ${lang}.
 
                 Return a JSON array of 3 objects. Each object MUST match this structure exactly:
