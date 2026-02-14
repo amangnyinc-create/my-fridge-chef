@@ -175,9 +175,23 @@ const RecipeAssistant = () => {
 
             const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
             const generatedRecipes = JSON.parse(jsonStr);
-            console.log("AI Recipes:", generatedRecipes);
+            console.log("AI Recipes Raw:", generatedRecipes);
 
-            return generatedRecipes;
+            // Robust Data Normalization
+            const normalizedRecipes = generatedRecipes.map(recipe => ({
+                ...recipe,
+                id: recipe.id || Math.random(),
+                title: recipe.title || "Untitled Recipe",
+                steps: Array.isArray(recipe.steps) && recipe.steps.length > 0
+                    ? recipe.steps
+                    : [recipe.description || "Prepare ingredients and cook according to standard practices."],
+                stepTimers: Array.isArray(recipe.stepTimers) ? recipe.stepTimers : [],
+                stepTips: Array.isArray(recipe.stepTips) ? recipe.stepTips : [],
+                ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+                intro: recipe.description || ""
+            }));
+
+            return normalizedRecipes;
 
         } catch (error) {
             console.error("Recipe Generation Failed:", error);
