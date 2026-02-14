@@ -122,10 +122,6 @@ const RecipeAssistant = () => {
         );
     };
 
-    // AI Integration
-    // AI Integration
-    // Moved initialization inside the function to prevent render crashes
-
     useEffect(() => {
         console.log("RecipeAssistant Component Mounted");
     }, []);
@@ -143,20 +139,32 @@ const RecipeAssistant = () => {
             const unitSystem = user?.unitSystem === 'imperial' ? 'Imperial (oz/lb/Fahrenheit)' : 'Metric (g/ml/Celsius)';
 
             const prompt = `
-                You are a world-class chef. Create 3 distinct recipes based on these ingredients: ${selected.join(', ')}.
-                User cravings/notes: "${userCravings}".
-                Dietary Restrictions/Allergies: "${dietary}".
-                Preferred Measurement System: ${unitSystem}.
-                Target Language: ${lang}.
+                Role: Professional Chef API.
+                Task: Generate 3 distinct recipes.
+                Ingredients: ${selected.join(', ')}
+                Cravings: "${userCravings}"
+                Dietary: "${dietary}"
+                Unit: ${unitSystem}
+                Lang: ${lang}
 
-                Return a JSON array of 3 objects. Each object MUST match this structure exactly:
-                {
-                    "id": number,
-                    ...
-                    "ingredients": [{"name": "string", "available": boolean}] 
-                    // IMPORTANT: Set 'available' to true ONLY if the ingredient is in the provided list: ${selected.join(', ')}. Otherwise false.
-                }
-                ENSURE JSON IS VALID. NO MARKDOWN CODE BLOCKS.
+                Output: Return ONLY a valid JSON Array of 3 objects. NO markdown, NO text.
+                
+                JSON Schema:
+                [
+                    {
+                        "id": 1,
+                        "title": "Recipe Name",
+                        "description": "Short appetizing summary.",
+                        "time": "Total Time",
+                        "difficulty": "Easy/Medium/Hard",
+                        "match": "Match %",
+                        "image": "https://source.unsplash.com/random/800x600/?food,dish",
+                        "steps": ["Step 1...", "Step 2..."],
+                        "stepTimers": [0, 10], 
+                        "stepTips": ["Tip 1", "Tip 2"],
+                        "ingredients": [{"name": "Item", "available": true}]
+                    }
+                ]
             `;
 
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
@@ -172,23 +180,39 @@ const RecipeAssistant = () => {
 
             const data = await response.json();
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            console.log("AI Raw:", text);
 
-            const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            const generatedRecipes = JSON.parse(jsonStr);
-            console.log("AI Recipes Raw:", generatedRecipes);
+            let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            const firstBracket = jsonStr.indexOf('[');
+            const lastBracket = jsonStr.lastIndexOf(']');
+            if (firstBracket !== -1 && lastBracket !== -1) {
+                jsonStr = jsonStr.substring(firstBracket, lastBracket + 1);
+            }
+
+            let generatedRecipes;
+            try {
+                generatedRecipes = JSON.parse(jsonStr);
+                if (!Array.isArray(generatedRecipes)) {
+                    if (generatedRecipes.recipes) generatedRecipes = generatedRecipes.recipes;
+                    else generatedRecipes = [generatedRecipes];
+                }
+            } catch (e) {
+                console.error("JSON Parsing Failed:", e);
+                // Last ditch effort: try to extract objects? No, just throw.
+                throw new Error("Failed to parse recipe data.");
+            }
 
             // Robust Data Normalization
             const normalizedRecipes = generatedRecipes.map(recipe => ({
                 ...recipe,
                 id: recipe.id || Math.random(),
-                title: recipe.title || "Untitled Recipe",
-                steps: Array.isArray(recipe.steps) && recipe.steps.length > 0
-                    ? recipe.steps
-                    : [recipe.description || "Prepare ingredients and cook according to standard practices."],
+                title: recipe.title || recipe.name || "Delicious Recipe",
+                description: recipe.description || "A tasty meal.",
+                steps: (Array.isArray(recipe.steps) && recipe.steps.length > 0) ? recipe.steps
+                    : (recipe.instructions || (recipe.description ? recipe.description.split('. ').filter(s => s.length > 5) : ["Cook thoroughly."])),
                 stepTimers: Array.isArray(recipe.stepTimers) ? recipe.stepTimers : [],
                 stepTips: Array.isArray(recipe.stepTips) ? recipe.stepTips : [],
-                ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
-                intro: recipe.description || ""
+                ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : []
             }));
 
             return normalizedRecipes;
