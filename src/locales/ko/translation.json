@@ -110,7 +110,10 @@
         "analysis_complete": "분석 완료",
         "detected_items": "감지된 품목",
         "confidence": "{{level}} 신뢰도",
-        "confirm_add": "확인 및 추가"
+        "confirm_add": "확인 및 추가",
+        "analysis_error": "AI 분석에 실패했습니다. (인터넷 연결을 확인하고 다시 시도해주세요)",
+        "camera_error": "카메라 접근이 거부되었습니다. 권한을 확인해주세요.",
+        "only_one_camera": "이 기기에서는 다른 카메라를 찾을 수 없습니다."
     },
     "ingredients": {
         "whole_milk": "유기농 우유",

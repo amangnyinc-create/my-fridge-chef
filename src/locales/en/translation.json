@@ -110,7 +110,10 @@
         "analysis_complete": "Analysis Complete",
         "detected_items": "Detected Items",
         "confidence": "{{level}} Confidence",
-        "confirm_add": "Confirm & Add"
+        "confirm_add": "Confirm & Add",
+        "analysis_error": "AI Analysis Failed. (Please check internet and try again)",
+        "camera_error": "Camera access denied. Please check permissions.",
+        "only_one_camera": "No other camera found on this device."
     },
     "ingredients": {
         "whole_milk": "Whole Milk",
