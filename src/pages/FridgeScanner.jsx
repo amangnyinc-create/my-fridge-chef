@@ -107,7 +107,8 @@ const FridgeScanner = () => {
         }
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            // Using gemini-2.0-flash as it is confirmed working in RecipeAssistant
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
             const prompt = "Analyze this image and list the food ingredients visible. Return ONLY a valid JSON array where each object has 'id' (number), 'name' (string), 'quantity' (number), and 'confidence' ('High', 'Medium', 'Low'). Example: [{\"id\": 1, \"name\": \"Apple\", \"quantity\": 3, \"confidence\": \"High\"}]";
 
             const imagePart = {
