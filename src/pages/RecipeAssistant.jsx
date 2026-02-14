@@ -9,9 +9,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const TimerButton = ({ initialMinutes }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
+    const [timeLeft, setTimeLeft] = useState((initialMinutes || 0) * 60);
     const [isActive, setIsActive] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
+
+    useEffect(() => {
+        setTimeLeft((initialMinutes || 0) * 60);
+        setIsActive(false);
+        setIsFinished(false);
+    }, [initialMinutes]);
 
     useEffect(() => {
         let interval = null;
@@ -194,8 +200,14 @@ const RecipeAssistant = () => {
     };
 
     if (cookingMode && activeRecipe) {
+        if (!activeRecipe.steps || activeRecipe.steps.length === 0) {
+            console.error("Invalid recipe steps", activeRecipe);
+            setCookingMode(false);
+            return null;
+        }
+
         const isLastStep = currentStep === activeRecipe.steps.length - 1;
-        const currentTimer = activeRecipe.stepTimers?.[currentStep];
+        const currentTimer = activeRecipe.stepTimers?.[currentStep] || 0;
 
         return (
             <div className="min-h-screen bg-[#FDFBF7] text-[#1B263B] p-6 flex flex-col relative overflow-hidden">
@@ -221,7 +233,7 @@ const RecipeAssistant = () => {
                     <div className="w-full max-w-lg space-y-6">
                         {currentTimer > 0 && (
                             <div className="px-6 animate-slide-up">
-                                <TimerButton initialMinutes={currentTimer} />
+                                <TimerButton key={currentStep} initialMinutes={currentTimer} />
                             </div>
                         )}
 
