@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User, Settings, LogOut, ChevronRight, Heart, Bell, Shield, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,8 @@ import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
     const { t, i18n } = useTranslation();
-    const { user, logout } = useAuth();
+    const { user, logout, updateProfile } = useAuth();
+    const [showDietary, setShowDietary] = useState(false);
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
@@ -39,7 +40,36 @@ const Profile = () => {
                 <section>
                     <h3 className="text-xs font-bold uppercase tracking-widest text-[#1B263B] mb-3 ml-2">{t('profile.preferences')}</h3>
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-50 overflow-hidden">
-                        <MenuItem icon={Heart} label={t('profile.dietary')} value="Gluten Free" />
+                        <MenuItem
+                            icon={Heart}
+                            label={t('profile.dietary')}
+                            value={user?.dietaryPreferences?.join(', ') || "None"}
+                            onClick={() => setShowDietary(!showDietary)}
+                        />
+                        {showDietary && (
+                            <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 grid grid-cols-2 gap-3">
+                                {['Vegan', 'Vegetarian', 'Gluten-Free', 'Keto', 'Dairy-Free', 'Nut-Free', 'Paleo', 'Low-Carb'].map(diet => (
+                                    <label key={diet} className="flex items-center gap-3 cursor-pointer group">
+                                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${user?.dietaryPreferences?.includes(diet) ? 'bg-[#1B263B] border-[#1B263B]' : 'bg-white border-gray-300 group-hover:border-[#C5A059]'}`}>
+                                            {user?.dietaryPreferences?.includes(diet) && <div className="w-2 h-2 bg-[#C5A059] rounded-full" />}
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            className="hidden"
+                                            checked={user?.dietaryPreferences?.includes(diet) || false}
+                                            onChange={(e) => {
+                                                const current = user?.dietaryPreferences || [];
+                                                const newDiets = e.target.checked
+                                                    ? [...current, diet]
+                                                    : current.filter(d => d !== diet);
+                                                updateProfile({ dietaryPreferences: newDiets });
+                                            }}
+                                        />
+                                        <span className={`text-sm font-medium transition-colors ${user?.dietaryPreferences?.includes(diet) ? 'text-[#1B263B]' : 'text-gray-500'}`}>{diet}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        )}
                         <div className="h-px bg-gray-50 mx-4"></div>
                         <MenuItem icon={Bell} label={t('profile.notifications')} value="On" />
                         <div className="h-px bg-gray-50 mx-4"></div>
@@ -91,8 +121,8 @@ const Profile = () => {
     );
 };
 
-const MenuItem = ({ icon: Icon, label, value }) => (
-    <button className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors group">
+const MenuItem = ({ icon: Icon, label, value, onClick }) => (
+    <button onClick={onClick} className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors group">
         <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-[#F9F7F2] flex items-center justify-center text-[#1B263B] group-hover:bg-[#1B263B] group-hover:text-[#C5A059] transition-colors">
                 <Icon size={16} />

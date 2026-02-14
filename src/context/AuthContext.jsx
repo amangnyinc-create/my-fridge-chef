@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
                     const foundUser = users.find(u => u.email === email && u.password === password);
 
                     if (foundUser) {
-                        const userSession = { name: foundUser.name, email: foundUser.email };
+                        const { password, ...userSession } = foundUser;
                         localStorage.setItem('currentUser', JSON.stringify(userSession));
                         setUser(userSession);
                         resolve(userSession);
@@ -70,11 +70,23 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateProfile = (updates) => {
+        if (!user) return;
+        const updatedUser = { ...user, ...updates };
+        setUser(updatedUser);
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const newUsers = users.map(u => u.email === user.email ? { ...u, ...updates } : u);
+        localStorage.setItem('users', JSON.stringify(newUsers));
+    };
+
     const value = {
         user,
         signup,
         login,
         logout,
+        updateProfile,
         loading
     };
 

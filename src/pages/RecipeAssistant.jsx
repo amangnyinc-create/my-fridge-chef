@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChefHat, Clock, Flame, ChevronRight, Loader2, PlayCircle, ArrowLeft, CheckCircle2, Pause, Play, RotateCcw, X, Timer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePantry } from '../context/PantryContext';
+import { useAuth } from '../context/AuthContext';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Timer Component
@@ -71,6 +72,7 @@ const TimerButton = ({ initialMinutes }) => {
 
 const RecipeAssistant = () => {
     const { t, i18n } = useTranslation();
+    const { user } = useAuth();
     const { ingredients } = usePantry();
     const [cravings, setCravings] = useState('');
     const [selectedIngredients, setSelectedIngredients] = useState([]);
@@ -111,10 +113,12 @@ const RecipeAssistant = () => {
             }
             const currentLang = i18n?.language || 'en';
             const lang = currentLang.startsWith('ko') ? 'Korean' : 'English';
+            const dietary = user?.dietaryPreferences?.join(', ') || 'None';
 
             const prompt = `
                 You are a world-class chef. Create 3 distinct recipes based on these ingredients: ${selected.join(', ')}.
                 User cravings/notes: "${userCravings}".
+                Dietary Restrictions/Allergies: "${dietary}".
                 Target Language: ${lang}.
 
                 Return a JSON array of 3 objects. Each object MUST match this structure exactly:
