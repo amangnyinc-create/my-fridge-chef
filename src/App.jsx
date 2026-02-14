@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Welcome from './pages/Welcome';
 import Login from './pages/Login';
@@ -38,36 +38,36 @@ const Layout = ({ children }) => {
 
 // Error Boundary for debugging
 class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  componentDidCatch(error, errorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="p-8 text-center bg-white min-h-screen flex flex-col items-center justify-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Application Error</h1>
-          <p className="mb-4 text-gray-600">Something went wrong. Here is the error:</p>
-          <pre className="text-left bg-gray-100 p-4 rounded text-xs overflow-auto max-w-full mb-6 border border-red-200">
-            {this.state.error && this.state.error.toString()}
-          </pre>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg"
-          >
-            Reload App
-          </button>
-        </div>
-      );
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
     }
-    return this.props.children;
-  }
+    static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+    }
+    componentDidCatch(error, errorInfo) {
+        console.error("Uncaught error:", error, errorInfo);
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="p-8 text-center bg-white min-h-screen flex flex-col items-center justify-center">
+                    <h1 className="text-2xl font-bold text-red-600 mb-4">Application Error</h1>
+                    <p className="mb-4 text-gray-600">Something went wrong. Here is the error:</p>
+                    <pre className="text-left bg-gray-100 p-4 rounded text-xs overflow-auto max-w-full mb-6 border border-red-200">
+                        {this.state.error && this.state.error.toString()}
+                    </pre>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg"
+                    >
+                        Reload App
+                    </button>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
 }
 
 function App() {
