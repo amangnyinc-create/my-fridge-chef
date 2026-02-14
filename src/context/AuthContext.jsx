@@ -22,7 +22,6 @@ export const AuthProvider = ({ children }) => {
     // Initial Auth State Observer
     useEffect(() => {
         if (auth) {
-            // Firebase Mode
             const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
                 if (authUser) {
                     setUser({
@@ -41,7 +40,6 @@ export const AuthProvider = ({ children }) => {
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
                 const parsed = JSON.parse(storedUser);
-                // Ensure ID exists for legacy data
                 if (!parsed.id) parsed.id = `local_${Date.now()}`;
                 setUser(parsed);
             }
@@ -52,19 +50,38 @@ export const AuthProvider = ({ children }) => {
     const signup = async (name, email, password) => {
         if (auth) {
             try {
+                console.log("🔥 Starting Firebase Signup...");
                 const result = await createUserWithEmailAndPassword(auth, email, password);
-                await updateFirebaseProfile(result.user, { displayName: name });
+                console.log("✅ User Created:", result.user.uid);
+
+                try {
+                    await updateFirebaseProfile(result.user, { displayName: name });
+                    console.log("✅ Profile Updated");
+                } catch (e) {
+                    console.error("⚠️ Profile Update Failed (Non-critical):", e);
+                }
 
                 if (db) {
-                    await setDoc(doc(db, "users", result.user.uid), {
-                        name,
-                        email,
-                        joinedAt: new Date(),
-                        preferences: {}
-                    });
+                    try {
+                        console.log("⏳ Writing to Firestore...");
+                        await setDoc(doc(db, "users", result.user.uid), {
+                            name,
+                            email,
+                            joinedAt: new Date(),
+                            preferences: {}
+                        });
+                        console.log("✅ Firestore Write Success");
+                    } catch (dbError) {
+                        console.error("❌ Firestore Write Failed (Database might not be created):", dbError);
+                        // Continue anyway
+                    }
+                } else {
+                    console.warn("⚠️ Firestore (db) not initialized.");
                 }
+
                 return result.user;
             } catch (error) {
+                console.error("❌ Signup Global Error:", error);
                 throw error;
             }
         } else {
@@ -100,19 +117,17 @@ export const AuthProvider = ({ children }) => {
                 const result = await signInWithEmailAndPassword(auth, email, password);
                 return result.user;
             } catch (error) {
+                console.error("Login Error:", error);
                 throw error;
             }
         } else {
-            // Local Mock Login
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
                     const found = users.find(u => u.email === email && u.password === password);
                     if (found) {
                         const { password, ...session } = found;
-                        // Ensure ID
                         if (!session.id) session.id = `local_${Date.now()}`;
-
                         localStorage.setItem('currentUser', JSON.stringify(session));
                         setUser(session);
                         resolve(session);
