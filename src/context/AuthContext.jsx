@@ -9,7 +9,7 @@ import {
     updateProfile as updateFirebaseProfile,
     sendPasswordResetEmail
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -24,10 +24,22 @@ export const AuthProvider = ({ children }) => {
         if (auth) {
             const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
                 if (authUser) {
+                    // Fetch extended profile from Firestore
+                    let extendedProfile = {};
+                    if (db) {
+                        try {
+                            const userDoc = await getDoc(doc(db, "users", authUser.uid));
+                            if (userDoc.exists()) {
+                                extendedProfile = userDoc.data();
+                            }
+                        } catch (e) { console.error("Error fetching user profile:", e); }
+                    }
+
                     setUser({
                         ...authUser,
                         name: authUser.displayName || authUser.email.split('@')[0],
-                        id: authUser.uid
+                        id: authUser.uid,
+                        ...extendedProfile // Merge Firestore data (dietary, notifications, etc.)
                     });
                 } else {
                     setUser(null);
@@ -68,7 +80,9 @@ export const AuthProvider = ({ children }) => {
                             name,
                             email,
                             joinedAt: new Date(),
-                            preferences: {}
+                            preferences: {},
+                            dietaryPreferences: [],
+                            notifications: true
                         });
                         console.log("✅ Firestore Write Success");
                     } catch (dbError) {
@@ -96,7 +110,9 @@ export const AuthProvider = ({ children }) => {
                         name,
                         email,
                         password,
-                        language: i18n?.language || 'en'
+                        language: i18n?.language || 'en',
+                        dietaryPreferences: [],
+                        notifications: true
                     };
 
                     users.push(newUser);
@@ -169,11 +185,28 @@ export const AuthProvider = ({ children }) => {
 
     const updateProfile = async (updates) => {
         if (auth && user) {
-            if (updates.name) {
-                await updateFirebaseProfile(auth.currentUser, { displayName: updates.name });
-                setUser(prev => ({ ...prev, name: updates.name }));
+            try {
+                // 1. Update Display Name in Auth (if changed)
+                if (updates.name && updates.name !== user.name) {
+                    await updateFirebaseProfile(auth.currentUser, { displayName: updates.name });
+                }
+
+                // 2. Update Firestore (for all fields: dietary, notifications, etc.)
+                if (db) {
+                    const userRef = doc(db, 'users', user.uid);
+                    // setDoc with merge handles updates safely even if doc missing
+                    await setDoc(userRef, updates, { merge: true });
+                }
+
+                // 3. Update Local State immediately
+                setUser(prev => ({ ...prev, ...updates }));
+
+            } catch (e) {
+                console.error("Profile Update Failed:", e);
+                throw e;
             }
         } else if (user) {
+            // Local Mode
             const updated = { ...user, ...updates };
             setUser(updated);
             localStorage.setItem('currentUser', JSON.stringify(updated));
