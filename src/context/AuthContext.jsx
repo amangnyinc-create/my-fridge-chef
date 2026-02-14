@@ -20,31 +20,37 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     // Initial Auth State Observer
+    // Initial Auth State Observer
     useEffect(() => {
         if (auth) {
             const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
                 if (authUser) {
-                    // Fetch extended profile from Firestore
-                    let extendedProfile = {};
+                    // 1. FAST PATH: Set basic user immediately to unblock UI
+                    setUser(prev => ({
+                        ...prev, // Keep existing if any
+                        ...authUser,
+                        name: authUser.displayName || authUser.email.split('@')[0],
+                        id: authUser.uid
+                    }));
+                    setLoading(false); // <--- UNBLOCK UI HERE!
+
+                    // 2. SLOW PATH: Fetch extended profile in background
                     if (db) {
                         try {
                             const userDoc = await getDoc(doc(db, "users", authUser.uid));
                             if (userDoc.exists()) {
-                                extendedProfile = userDoc.data();
+                                // Update state with extended data (silently)
+                                setUser(prev => ({
+                                    ...prev,
+                                    ...userDoc.data()
+                                }));
                             }
-                        } catch (e) { console.error("Error fetching user profile:", e); }
+                        } catch (e) { console.error("Error fetching background profile:", e); }
                     }
-
-                    setUser({
-                        ...authUser,
-                        name: authUser.displayName || authUser.email.split('@')[0],
-                        id: authUser.uid,
-                        ...extendedProfile // Merge Firestore data (dietary, notifications, etc.)
-                    });
                 } else {
                     setUser(null);
+                    setLoading(false);
                 }
-                setLoading(false);
             });
             return () => unsubscribe();
         } else {
