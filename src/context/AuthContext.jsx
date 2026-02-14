@@ -9,7 +9,7 @@ import {
     updateProfile as updateFirebaseProfile,
     sendPasswordResetEmail
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -25,8 +25,6 @@ export const AuthProvider = ({ children }) => {
             // Firebase Mode
             const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
                 if (authUser) {
-                    // Fetch additional profile data from Firestore if needed
-                    // For now, trust Auth object
                     setUser({
                         ...authUser,
                         name: authUser.displayName || authUser.email.split('@')[0],
@@ -39,10 +37,13 @@ export const AuthProvider = ({ children }) => {
             });
             return () => unsubscribe();
         } else {
-            // Local Mock Mode Fallback (Keep original logic)
+            // Local Mock Mode Fallback
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
-                setUser(JSON.parse(storedUser));
+                const parsed = JSON.parse(storedUser);
+                // Ensure ID exists for legacy data
+                if (!parsed.id) parsed.id = `local_${Date.now()}`;
+                setUser(parsed);
             }
             setLoading(false);
         }
@@ -54,7 +55,6 @@ export const AuthProvider = ({ children }) => {
                 const result = await createUserWithEmailAndPassword(auth, email, password);
                 await updateFirebaseProfile(result.user, { displayName: name });
 
-                // Create User Document in Firestore for extended data
                 if (db) {
                     await setDoc(doc(db, "users", result.user.uid), {
                         name,
@@ -63,7 +63,6 @@ export const AuthProvider = ({ children }) => {
                         preferences: {}
                     });
                 }
-
                 return result.user;
             } catch (error) {
                 throw error;
@@ -74,10 +73,19 @@ export const AuthProvider = ({ children }) => {
                 setTimeout(() => {
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
                     if (users.find(u => u.email === email)) return reject(new Error('Email already registered (Local)'));
-                    const newUser = { name, email, password, language: i18n.language };
+
+                    const newUser = {
+                        id: `local_${Date.now()}`,
+                        name,
+                        email,
+                        password,
+                        language: i18n?.language || 'en'
+                    };
+
                     users.push(newUser);
                     localStorage.setItem('users', JSON.stringify(users));
-                    const session = { name, email };
+
+                    const { password: _, ...session } = newUser;
                     localStorage.setItem('currentUser', JSON.stringify(session));
                     setUser(session);
                     resolve(session);
@@ -102,6 +110,9 @@ export const AuthProvider = ({ children }) => {
                     const found = users.find(u => u.email === email && u.password === password);
                     if (found) {
                         const { password, ...session } = found;
+                        // Ensure ID
+                        if (!session.id) session.id = `local_${Date.now()}`;
+
                         localStorage.setItem('currentUser', JSON.stringify(session));
                         setUser(session);
                         resolve(session);
@@ -126,7 +137,6 @@ export const AuthProvider = ({ children }) => {
             await sendPasswordResetEmail(auth, email);
             return "Email Sent";
         } else {
-            // Local Mock Reset
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -148,9 +158,7 @@ export const AuthProvider = ({ children }) => {
                 await updateFirebaseProfile(auth.currentUser, { displayName: updates.name });
                 setUser(prev => ({ ...prev, name: updates.name }));
             }
-            // Store other updates in Firestore? (Skip for now to keep simple)
         } else if (user) {
-            // Local Mock Update
             const updated = { ...user, ...updates };
             setUser(updated);
             localStorage.setItem('currentUser', JSON.stringify(updated));
@@ -162,8 +170,6 @@ export const AuthProvider = ({ children }) => {
 
     const changePassword = async (newPassword) => {
         if (auth) {
-            // Check if re-authentication is needed? For simplicity assume logged in.
-            // Check Firebase doc: updatePassword(user, newPassword)
             const { updatePassword } = await import('firebase/auth');
             if (auth.currentUser) await updatePassword(auth.currentUser, newPassword);
         } else if (user) {
