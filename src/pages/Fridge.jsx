@@ -309,10 +309,10 @@ const Fridge = () => {
                         </div>
                         <button
                             onClick={() => removeIngredient(item.id)}
-                            className="p-2 text-gray-300 hover:text-red-400 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all active:scale-90"
-                            title="Delete Item"
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                            title={t('fridge.deleteItem') || "Delete Item"}
                         >
-                            <Trash2 size={18} />
+                            <Trash2 size={20} />
                         </button>
                     </div>
                 ))}

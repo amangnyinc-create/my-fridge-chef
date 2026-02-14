@@ -65,6 +65,14 @@ export const PantryProvider = ({ children }) => {
         setDeletedIngredients([]);
     };
 
+    const clearPantry = () => {
+        if (ingredients.length === 0) return;
+        if (window.confirm("Are you sure you want to empty your fridge? All items will be moved to trash.")) {
+            setDeletedIngredients(prev => [...prev, ...ingredients]);
+            setIngredients([]);
+        }
+    };
+
     return (
         <PantryContext.Provider value={{
             ingredients,
@@ -73,7 +81,8 @@ export const PantryProvider = ({ children }) => {
             removeIngredient,
             restoreIngredient,
             permanentlyDeleteIngredient,
-            clearTrash
+            clearTrash,
+            clearPantry
         }}>
             {children}
         </PantryContext.Provider>

@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../context/AuthContext';
+import { usePantry } from '../context/PantryContext';
 
 const Profile = () => {
     const { t, i18n } = useTranslation();
     const { user, logout, updateProfile, changePassword } = useAuth();
+    const { clearPantry } = usePantry();
     const [showDietary, setShowDietary] = useState(false);
     const [showPersonal, setShowPersonal] = useState(false);
     const [showSecurity, setShowSecurity] = useState(false);
@@ -181,20 +183,31 @@ const Profile = () => {
                         <div className="h-px bg-gray-50 mx-4"></div>
                         <MenuItem icon={Settings} label={t('profile.appSettings')} onClick={() => setShowSettings(!showSettings)} />
                         {showSettings && (
-                            <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center animate-fade-in">
-                                <span className="text-xs font-bold uppercase text-gray-500 tracking-wider">Measurement Unit</span>
-                                <div className="flex bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                            <div className="bg-gray-50/50 border-t border-gray-100 animate-fade-in divide-y divide-gray-100">
+                                <div className="p-4 flex justify-between items-center">
+                                    <span className="text-xs font-bold uppercase text-gray-500 tracking-wider">Measurement Unit</span>
+                                    <div className="flex bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                                        <button
+                                            onClick={() => updateProfile({ unitSystem: 'metric' })}
+                                            className={`px-4 py-2 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${user?.unitSystem !== 'imperial' ? 'bg-[#1B263B] text-[#C5A059] shadow-sm' : 'text-gray-400 hover:bg-gray-50'}`}
+                                        >
+                                            Metric (g/ml)
+                                        </button>
+                                        <button
+                                            onClick={() => updateProfile({ unitSystem: 'imperial' })}
+                                            className={`px-4 py-2 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${user?.unitSystem === 'imperial' ? 'bg-[#1B263B] text-[#C5A059] shadow-sm' : 'text-gray-400 hover:bg-gray-50'}`}
+                                        >
+                                            Imperial (oz/lb)
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="p-4 flex justify-between items-center">
+                                    <span className="text-xs font-bold uppercase text-red-500 tracking-wider">Danger Zone</span>
                                     <button
-                                        onClick={() => updateProfile({ unitSystem: 'metric' })}
-                                        className={`px-4 py-2 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${user?.unitSystem !== 'imperial' ? 'bg-[#1B263B] text-[#C5A059] shadow-sm' : 'text-gray-400 hover:bg-gray-50'}`}
+                                        onClick={clearPantry}
+                                        className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 transition-colors border border-red-100"
                                     >
-                                        Metric (g/ml)
-                                    </button>
-                                    <button
-                                        onClick={() => updateProfile({ unitSystem: 'imperial' })}
-                                        className={`px-4 py-2 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${user?.unitSystem === 'imperial' ? 'bg-[#1B263B] text-[#C5A059] shadow-sm' : 'text-gray-400 hover:bg-gray-50'}`}
-                                    >
-                                        Imperial (oz/lb)
+                                        {t('profile.clear_pantry') || "Clear Fridge Data"}
                                     </button>
                                 </div>
                             </div>
@@ -208,8 +221,8 @@ const Profile = () => {
                     <LogOut size={18} />
                     <span>{t('common.logout')}</span>
                 </button>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 
