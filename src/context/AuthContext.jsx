@@ -192,20 +192,20 @@ export const AuthProvider = ({ children }) => {
     const updateProfile = async (updates) => {
         if (auth && user) {
             try {
-                // 1. Update Display Name in Auth (if changed)
+                // 1. OPTIMISTIC UPDATE: Update UI Immediately!
+                setUser(prev => ({ ...prev, ...updates }));
+
+                // 2. Update Display Name in Auth (if changed)
                 if (updates.name && updates.name !== user.name) {
                     await updateFirebaseProfile(auth.currentUser, { displayName: updates.name });
                 }
 
-                // 2. Update Firestore (for all fields: dietary, notifications, etc.)
+                // 3. Update Firestore (Background)
                 if (db) {
                     const userRef = doc(db, 'users', user.uid);
                     // setDoc with merge handles updates safely even if doc missing
                     await setDoc(userRef, updates, { merge: true });
                 }
-
-                // 3. Update Local State immediately
-                setUser(prev => ({ ...prev, ...updates }));
 
             } catch (e) {
                 console.error("Profile Update Failed:", e);
