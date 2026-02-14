@@ -29,6 +29,10 @@ const Login = () => {
         }
     };
 
+    const handleForgotPassword = () => {
+        alert(t('login.reset_alert') || "Password reset is not available in this demo. Please Create a New Account for this device.");
+    };
+
     return (
         <div className="min-h-screen bg-[#FAF9F6] p-6 flex flex-col justify-center">
 
@@ -44,7 +48,15 @@ const Login = () => {
                 <p className="text-[#1B263B]/60 font-sans text-sm tracking-wide">{t('login.subtitle')}</p>
             </div>
 
-            {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg text-center mb-6 font-medium">{error}</div>}
+            {error && (
+                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg text-center mb-6 font-medium animate-fade-in">
+                    {error}
+                    <div className="text-[10px] text-gray-500 mt-2 border-t border-red-100 pt-1">
+                        Accounts are saved on THIS device only.<br />
+                        New phone? Please <b>Sign Up</b> again!
+                    </div>
+                </div>
+            )}
             <form onSubmit={handleLogin} className="space-y-6 max-w-sm mx-auto w-full">
                 <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-[#1B263B] ml-1">{t('login.email')}</label>
@@ -75,7 +87,13 @@ const Login = () => {
                         />
                     </div>
                     <div className="flex justify-end">
-                        <button type="button" className="text-xs text-[#C5A059] font-medium hover:text-[#1B263B] transition-colors">{t('login.forgot_password')}</button>
+                        <button
+                            type="button"
+                            onClick={handleForgotPassword}
+                            className="text-xs text-[#C5A059] font-medium hover:text-[#1B263B] transition-colors"
+                        >
+                            {t('login.forgot_password')}
+                        </button>
                     </div>
                 </div>
 
