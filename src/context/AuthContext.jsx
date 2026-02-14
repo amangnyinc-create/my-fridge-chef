@@ -1,5 +1,15 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import i18n from '../i18n';
+import { auth, db } from '../firebase';
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    updateProfile as updateFirebaseProfile,
+    sendPasswordResetEmail
+} from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -9,97 +19,158 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Initial Auth State Observer
     useEffect(() => {
-        // Check if user is already logged in (persisted in localStorage)
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        if (auth) {
+            // Firebase Mode
+            const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+                if (authUser) {
+                    // Fetch additional profile data from Firestore if needed
+                    // For now, trust Auth object
+                    setUser({
+                        ...authUser,
+                        name: authUser.displayName || authUser.email.split('@')[0],
+                        id: authUser.uid
+                    });
+                } else {
+                    setUser(null);
+                }
+                setLoading(false);
+            });
+            return () => unsubscribe();
+        } else {
+            // Local Mock Mode Fallback (Keep original logic)
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
     const signup = async (name, email, password) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                try {
-                    const users = JSON.parse(localStorage.getItem('users') || '[]');
-                    if (users.find(u => u.email === email)) {
-                        throw new Error('Email already registered');
-                    }
+        if (auth) {
+            try {
+                const result = await createUserWithEmailAndPassword(auth, email, password);
+                await updateFirebaseProfile(result.user, { displayName: name });
 
-                    const newUser = {
+                // Create User Document in Firestore for extended data
+                if (db) {
+                    await setDoc(doc(db, "users", result.user.uid), {
                         name,
                         email,
-                        password,
-                        language: i18n.language, // Save current language
-                        notifications: true,
-                        dietaryPreferences: []
-                    };
+                        joinedAt: new Date(),
+                        preferences: {}
+                    });
+                }
+
+                return result.user;
+            } catch (error) {
+                throw error;
+            }
+        } else {
+            // Local Mock Signup
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    if (users.find(u => u.email === email)) return reject(new Error('Email already registered (Local)'));
+                    const newUser = { name, email, password, language: i18n.language };
                     users.push(newUser);
                     localStorage.setItem('users', JSON.stringify(users));
-
-                    // Auto login after signup
-                    const userSession = { name, email };
-                    localStorage.setItem('currentUser', JSON.stringify(userSession));
-                    setUser(userSession);
-
-                    resolve(userSession);
-                } catch (error) {
-                    reject(error);
-                }
-            }, 800); // Simulate network delay
-        });
+                    const session = { name, email };
+                    localStorage.setItem('currentUser', JSON.stringify(session));
+                    setUser(session);
+                    resolve(session);
+                }, 800);
+            });
+        }
     };
 
     const login = async (email, password) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                try {
+        if (auth) {
+            try {
+                const result = await signInWithEmailAndPassword(auth, email, password);
+                return result.user;
+            } catch (error) {
+                throw error;
+            }
+        } else {
+            // Local Mock Login
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
                     const users = JSON.parse(localStorage.getItem('users') || '[]');
-                    const foundUser = users.find(u => u.email === email && u.password === password);
-
-                    if (foundUser) {
-                        const { password, ...userSession } = foundUser;
-
-                        // Apply stored language preference
-                        if (userSession.language) {
-                            i18n.changeLanguage(userSession.language);
-                        }
-
-                        localStorage.setItem('currentUser', JSON.stringify(userSession));
-                        setUser(userSession);
-                        resolve(userSession);
-                    } else {
-                        throw new Error('Invalid email or password');
-                    }
-                } catch (error) {
-                    reject(error);
-                }
-            }, 800);
-        });
+                    const found = users.find(u => u.email === email && u.password === password);
+                    if (found) {
+                        const { password, ...session } = found;
+                        localStorage.setItem('currentUser', JSON.stringify(session));
+                        setUser(session);
+                        resolve(session);
+                    } else reject(new Error('Invalid credentials (Local)'));
+                }, 800);
+            });
+        }
     };
 
-    const logout = () => {
-        localStorage.removeItem('currentUser');
-        setUser(null);
+    const logout = async () => {
+        if (auth) {
+            await signOut(auth);
+            setUser(null);
+        } else {
+            localStorage.removeItem('currentUser');
+            setUser(null);
+        }
     };
 
-    const updateProfile = (updates) => {
-        if (!user) return;
-        const updatedUser = { ...user, ...updates };
-        setUser(updatedUser);
-        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const newUsers = users.map(u => u.email === user.email ? { ...u, ...updates } : u);
-        localStorage.setItem('users', JSON.stringify(newUsers));
+    const resetPassword = async (email) => {
+        if (auth) {
+            await sendPasswordResetEmail(auth, email);
+            return "Email Sent";
+        } else {
+            // Local Mock Reset
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const found = users.find(u => u.email === email);
+                    if (found) {
+                        const newPass = "password123";
+                        const newUsers = users.map(u => u.email === email ? { ...u, password: newPass } : u);
+                        localStorage.setItem('users', JSON.stringify(newUsers));
+                        resolve(newPass);
+                    } else reject(new Error("Email not found"));
+                }, 500);
+            });
+        }
     };
 
-    const changePassword = (newPassword) => {
-        if (!user) return;
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const newUsers = users.map(u => u.email === user.email ? { ...u, password: newPassword } : u);
-        localStorage.setItem('users', JSON.stringify(newUsers));
+    const updateProfile = async (updates) => {
+        if (auth && user) {
+            if (updates.name) {
+                await updateFirebaseProfile(auth.currentUser, { displayName: updates.name });
+                setUser(prev => ({ ...prev, name: updates.name }));
+            }
+            // Store other updates in Firestore? (Skip for now to keep simple)
+        } else if (user) {
+            // Local Mock Update
+            const updated = { ...user, ...updates };
+            setUser(updated);
+            localStorage.setItem('currentUser', JSON.stringify(updated));
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const newUsers = users.map(u => u.email === user.email ? { ...u, ...updates } : u);
+            localStorage.setItem('users', JSON.stringify(newUsers));
+        }
+    };
+
+    const changePassword = async (newPassword) => {
+        if (auth) {
+            // Check if re-authentication is needed? For simplicity assume logged in.
+            // Check Firebase doc: updatePassword(user, newPassword)
+            const { updatePassword } = await import('firebase/auth');
+            if (auth.currentUser) await updatePassword(auth.currentUser, newPassword);
+        } else if (user) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const newUsers = users.map(u => u.email === user.email ? { ...u, password: newPassword } : u);
+            localStorage.setItem('users', JSON.stringify(newUsers));
+        }
     };
 
     const value = {
@@ -107,6 +178,7 @@ export const AuthProvider = ({ children }) => {
         signup,
         login,
         logout,
+        resetPassword,
         updateProfile,
         changePassword,
         loading
