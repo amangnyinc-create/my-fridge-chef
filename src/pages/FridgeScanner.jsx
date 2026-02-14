@@ -98,6 +98,14 @@ const FridgeScanner = () => {
 
     const analyzeImageWithGemini = async (imageBase64) => {
         setIsAnalyzing(true);
+
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        if (!apiKey) {
+            alert("System Error: API Key is missing. Please check your configuration.");
+            setIsAnalyzing(false);
+            return;
+        }
+
         try {
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const prompt = "Analyze this image and list the food ingredients visible. Return ONLY a valid JSON array where each object has 'id' (number), 'name' (string), 'quantity' (number), and 'confidence' ('High', 'Medium', 'Low'). Example: [{\"id\": 1, \"name\": \"Apple\", \"quantity\": 3, \"confidence\": \"High\"}]";
@@ -122,8 +130,9 @@ const FridgeScanner = () => {
             stopCamera();
 
         } catch (error) {
-            console.error("AI Analysis Failed:", error);
-            alert(t('scan.analysis_error') || `AI Analysis Failed: ${error.message || "Please check internet & try again."}`);
+            console.error("AI Analysis Failed Detailed:", error);
+            const errorMsg = error.message || JSON.stringify(error);
+            alert(`AI Error: ${errorMsg}\n(Check Console for details)`);
         } finally {
             setIsAnalyzing(false);
         }
