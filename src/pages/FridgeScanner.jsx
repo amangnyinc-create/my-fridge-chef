@@ -2,11 +2,17 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Check, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { usePantry } from '../context/PantryContext';
 
 const FridgeScanner = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { addIngredient } = usePantry();
     const [scanned, setScanned] = useState(false);
+
+    // AI Integration
+    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
     const formatKey = (str) => str.toLowerCase().replace(/\s+/g, '_');
 
@@ -32,6 +38,131 @@ const FridgeScanner = () => {
         }, 800);
     };
 
+    const videoRef = React.useRef(null);
+    const canvasRef = React.useRef(null);
+    const [stream, setStream] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+    const [facingMode, setFacingMode] = useState('environment');
+    const [cameras, setCameras] = useState([]);
+    const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
+
+    React.useEffect(() => {
+        // 1. Get List of Cameras
+        const getCameras = async () => {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                setCameras(videoDevices);
+
+                // Try to find back camera to start with
+                const backCameraIndex = videoDevices.findIndex(device =>
+                    device.label.toLowerCase().includes('back') ||
+                    device.label.toLowerCase().includes('environment')
+                );
+                if (backCameraIndex !== -1) setCurrentCameraIndex(backCameraIndex);
+            } catch (err) {
+                console.error("Error listing cameras:", err);
+            }
+        };
+        getCameras();
+    }, []);
+
+    React.useEffect(() => {
+        startCamera();
+        return () => stopCamera();
+    }, [currentCameraIndex, cameras]); // Restart when camera index changes
+
+    const startCamera = async () => {
+        if (cameras.length === 0) return; // Wait until cameras are loaded
+
+        stopCamera(); // Ensure previous stream is stopped
+
+        try {
+            const deviceId = cameras[currentCameraIndex].deviceId;
+            const mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: { exact: deviceId } }
+            });
+            setStream(mediaStream);
+            if (videoRef.current) {
+                videoRef.current.srcObject = mediaStream;
+            }
+        } catch (err) {
+            console.error("Camera error:", err);
+            // Fallback: try default if exact device fails
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                setStream(stream);
+                if (videoRef.current) videoRef.current.srcObject = stream;
+            } catch (e) {
+                console.error("Fallback failed:", e);
+                alert("Camera access denied.");
+            }
+        }
+    };
+
+    const stopCamera = () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            setStream(null);
+        }
+    };
+
+    const toggleCamera = () => {
+        if (cameras.length <= 1) {
+            alert(t('scan.only_one_camera') || "No other camera found on this device.");
+            return;
+        }
+        setCurrentCameraIndex(prev => (prev + 1) % cameras.length);
+    };
+
+    const analyzeImageWithGemini = async (imageBase64) => {
+        setIsAnalyzing(true);
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const prompt = "Analyze this image and list the food ingredients visible. Return ONLY a valid JSON array where each object has 'id' (number), 'name' (string), 'quantity' (number), and 'confidence' ('High', 'Medium', 'Low'). Example: [{\"id\": 1, \"name\": \"Apple\", \"quantity\": 3, \"confidence\": \"High\"}]";
+
+            const imagePart = {
+                inlineData: {
+                    data: imageBase64.split(',')[1],
+                    mimeType: "image/jpeg",
+                },
+            };
+
+            const result = await model.generateContent([prompt, imagePart]);
+            const response = await result.response;
+            const text = response.text();
+
+            // Clean markdown code blocks if present
+            const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            const items = JSON.parse(jsonStr);
+
+            setDetectedItems(items);
+            setScanned(true);
+            stopCamera();
+
+        } catch (error) {
+            console.error("AI Analysis Failed:", error);
+            alert("Failed to analyze image. Please try again.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const captureImage = () => {
+        if (videoRef.current && canvasRef.current) {
+            const context = canvasRef.current.getContext('2d');
+            const { videoWidth, videoHeight } = videoRef.current;
+
+            canvasRef.current.width = videoWidth;
+            canvasRef.current.height = videoHeight;
+            context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+
+            const imageBase64 = canvasRef.current.toDataURL('image/jpeg');
+            analyzeImageWithGemini(imageBase64);
+        }
+    };
+
     const updateQuantity = (id, delta) => {
         setDetectedItems(prev => prev.map(item =>
             item.id === id ? { ...item, quantity: Math.max(0, item.quantity + delta) } : item
@@ -39,50 +170,99 @@ const FridgeScanner = () => {
     };
 
     const handleConfirm = () => {
-        const itemNames = detectedItems.filter(i => i.quantity > 0).map(i => translateIngredient(i.name)).join(', ');
-        if (itemNames) {
-            alert(`${t('fridge.addToPantry')}: ${itemNames}`);
+        const itemsToAdd = detectedItems.filter(i => i.quantity > 0);
+
+        if (itemsToAdd.length > 0) {
+            const addedNames = [];
+            itemsToAdd.forEach(item => {
+                const translatedName = translateIngredient(item.name);
+                addedNames.push(translatedName);
+
+                // Create a pantry item with metadata
+                const newItem = {
+                    id: Date.now() + Math.random(), // Unique ID
+                    name: translatedName,
+                    category: 'Scanned', // Default category for now
+                    expiry: '7 days',    // Default expiry
+                    status: 'good',      // Default status
+                    quantity: item.quantity,
+                    dateAdded: new Date().toISOString()
+                };
+                addIngredient(newItem);
+            });
+
+            alert(`${t('fridge.addToPantry')}: ${addedNames.join(', ')}`);
             navigate('/fridge');
+        } else {
+            alert(t('scan.no_items_selected') || "No items selected.");
         }
     };
 
     return (
         <div className="p-6 pb-24 min-h-screen bg-[#FAF9F6] font-sans">
-            <header className="mb-8 pt-2">
+            <header className="mb-4 pt-2">
                 <h1 className="text-3xl font-serif font-semibold text-[#1B263B] mb-1">{t('scan.title')}</h1>
                 <p className="text-[#C5A059] text-xs font-medium tracking-widest uppercase">{t('scan.subtitle')}</p>
             </header>
 
             {!scanned ? (
-                <div className="bg-[#1B263B] rounded-3xl w-full h-[450px] flex items-center justify-center relative overflow-hidden shadow-2xl">
-                    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                    <p className="text-[#C5A059]/80 absolute top-8 font-serif italic tracking-wider text-center w-full px-4 text-sm animate-pulse">{t('scan.align_frame')}</p>
+                <div className="relative w-full h-[60vh] bg-black rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center justify-center">
+                    {/* Real Camera Feed */}
+                    <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <canvas ref={canvasRef} className="hidden" />
 
-                    {/* Viewfinder Corners */}
-                    <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-[#C5A059]"></div>
-                    <div className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2 border-[#C5A059]"></div>
-                    <div className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2 border-[#C5A059]"></div>
-                    <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-[#C5A059]"></div>
+                    {/* Overlay Guides */}
+                    <div className="absolute inset-0 border-2 border-white/20 m-6 rounded-2xl pointer-events-none">
+                        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#C5A059]"></div>
+                        <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#C5A059]"></div>
+                        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#C5A059]"></div>
+                        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#C5A059]"></div>
+                    </div>
+
+                    {isAnalyzing && (
+                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
+                            <div className="w-12 h-12 border-4 border-[#C5A059] border-t-transparent rounded-full animate-spin mb-4"></div>
+                            <p className="text-white font-serif tracking-wider animate-pulse">Analyzing Ingredients...</p>
+                        </div>
+                    )}
+
+                    <div className="absolute top-4 right-4 z-10">
+                        <button
+                            onClick={toggleCamera}
+                            className="bg-black/40 backdrop-blur-sm p-3 rounded-full text-white hover:bg-black/60 transition-colors"
+                        >
+                            <RotateCcw size={20} />
+                        </button>
+                    </div>
+
+                    <p className="absolute top-10 text-white/80 font-serif italic text-sm bg-black/30 px-4 py-1 rounded-full backdrop-blur-sm">
+                        {t('scan.align_frame')}
+                    </p>
 
                     <button
-                        onClick={handleMockScan}
-                        className="bg-[#C5A059] text-[#1B263B] w-20 h-20 rounded-full shadow-lg shadow-[#C5A059]/40 hover:scale-110 transition-transform active:scale-95 z-10 flex items-center justify-center"
+                        onClick={captureImage}
+                        disabled={isAnalyzing}
+                        className={`absolute bottom-10 w-20 h-20 rounded-full border-4 border-white/50 flex items-center justify-center transition-all group ${isAnalyzing ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
                     >
-                        <Camera size={32} />
+                        <div className="w-16 h-16 bg-[#C5A059] rounded-full shadow-inner group-hover:bg-[#d4b06d] transition-colors"></div>
                     </button>
-                    <p className="text-white/30 text-xs absolute bottom-24 tracking-widest uppercase">{t('scan.tap_to_scan')}</p>
                 </div>
             ) : (
                 <div className="space-y-6 animate-fade-in">
                     <div className="relative rounded-3xl overflow-hidden shadow-xl border border-[#C5A059]/20">
-                        <img
-                            src="https://images.unsplash.com/photo-1584269600465-385038f4a034?q=80&w=1000&auto=format&fit=crop"
-                            alt="Scanned Fridge"
-                            className="w-full h-56 object-cover"
-                        />
+                        {/* Display captured image from canvas if needed, or placeholder for now */}
+                        <div className="bg-gray-200 w-full h-56 flex items-center justify-center text-gray-500">
+                            captured image
+                        </div>
                         <div className="absolute top-4 left-4 right-4 flex justify-between">
                             <span className="bg-[#1B263B]/80 text-[#C5A059] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">{t('scan.analysis_complete')}</span>
-                            <button onClick={() => setScanned(false)} className="bg-white/20 p-2 rounded-full backdrop-blur-sm hover:bg-white/40 text-white transition-colors">
+                            <button onClick={() => { setScanned(false); startCamera(); }} className="bg-white/20 p-2 rounded-full backdrop-blur-sm hover:bg-white/40 text-white transition-colors">
                                 <RotateCcw size={16} />
                             </button>
                         </div>

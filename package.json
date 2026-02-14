@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "framer-motion": "^11.0.21",
     "i18next": "^25.8.4",
     "i18next-browser-languagedetector": "^8.2.0",
