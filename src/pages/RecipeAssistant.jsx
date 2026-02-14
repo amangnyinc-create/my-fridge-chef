@@ -13,7 +13,14 @@ const TimerButton = ({ initialMinutes, user }) => {
     const [isFinished, setIsFinished] = useState(false);
 
     useEffect(() => {
-        setTimeLeft((initialMinutes || 0) * 60);
+        let mins = initialMinutes || 0;
+        // Safety: If AI returns seconds (e.g. 600 for 10 min), treat as seconds if > 180 (3 hours)
+        // Most cooking steps are < 3 hours. 
+        if (mins > 180) {
+            console.warn("Timer value likely seconds, auto-converting:", mins);
+            mins = Math.round(mins / 60);
+        }
+        setTimeLeft(mins * 60);
         setIsActive(false);
         setIsFinished(false);
     }, [initialMinutes]);
@@ -164,7 +171,7 @@ const RecipeAssistant = () => {
                         "match": "Match %",
                         "image": "https://source.unsplash.com/random/800x600/?food,dish",
                         "steps": ["Step 1...", "Step 2..."],
-                        "stepTimers": [0, 10], 
+                        "stepTimers": [0, 10], // VALUES IN MINUTES (e.g. 5 for 5 min)
                         "stepTips": ["Tip 1", "Tip 2"],
                         "ingredients": [
                             {"name": "Main Item (from list)", "available": true},
