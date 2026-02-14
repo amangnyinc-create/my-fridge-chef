@@ -6,9 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Timer Component
-const TimerButton = ({ initialMinutes }) => {
+const TimerButton = ({ initialMinutes, user }) => {
     const { t } = useTranslation();
-    const { user } = useAuth();
     const [timeLeft, setTimeLeft] = useState((initialMinutes || 0) * 60);
     const [isActive, setIsActive] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
@@ -233,7 +232,7 @@ const RecipeAssistant = () => {
                     <div className="w-full max-w-lg space-y-6">
                         {currentTimer > 0 && (
                             <div className="px-6 animate-slide-up">
-                                <TimerButton key={currentStep} initialMinutes={currentTimer} />
+                                <TimerButton key={currentStep} initialMinutes={currentTimer} user={user} />
                             </div>
                         )}
 
