@@ -141,14 +141,18 @@ const RecipeAssistant = () => {
             const prompt = `
                 Role: Professional Chef API.
                 Task: Generate 3 distinct recipes.
-                Ingredients: ${selected.join(', ')}
+                Ingredients Provided: ${selected.join(', ')}
                 Cravings: "${userCravings}"
                 Dietary: "${dietary}"
                 Unit: ${unitSystem}
                 Lang: ${lang}
 
-                Output: Return ONLY a valid JSON Array of 3 objects. NO markdown, NO text.
-                
+                CRITICAL RULES:
+                1. Return ONLY a valid JSON Array of 3 objects. NO markdown, NO text.
+                2. List ALL ingredients required for the dish (including oils, spices, garnishes).
+                3. Set "available": true DOES the user have this ingredient? (Check against Ingredients Provided list).
+                4. Set "available": false if the user needs to buy it or look in pantry (e.g. basic spices not listed).
+
                 JSON Schema:
                 [
                     {
@@ -162,7 +166,10 @@ const RecipeAssistant = () => {
                         "steps": ["Step 1...", "Step 2..."],
                         "stepTimers": [0, 10], 
                         "stepTips": ["Tip 1", "Tip 2"],
-                        "ingredients": [{"name": "Item", "available": true}]
+                        "ingredients": [
+                            {"name": "Main Item (from list)", "available": true},
+                            {"name": "Missing Spice/Oil", "available": false}
+                        ]
                     }
                 ]
             `;
