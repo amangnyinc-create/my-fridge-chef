@@ -10,7 +10,7 @@ import { usePantry } from '../context/PantryContext';
 const Profile = () => {
     const { t, i18n } = useTranslation();
     const { user, logout, updateProfile, changePassword } = useAuth();
-    const { clearPantry, ingredients, migrateLocalData } = usePantry();
+    const { clearPantry, ingredients, migrateLocalData, restoreDefaultIngredients } = usePantry();
     const [showDietary, setShowDietary] = useState(false);
     const [showPersonal, setShowPersonal] = useState(false);
     const [showSecurity, setShowSecurity] = useState(false);
@@ -256,6 +256,12 @@ const Profile = () => {
                                 🔄 Restore Lost Ingredients (Sync)
                             </button>
                         )}
+                        <button
+                            onClick={restoreDefaultIngredients}
+                            className="mt-2 bg-green-500 text-white px-3 py-1 rounded text-xs w-full"
+                        >
+                            🛒 Restock Basic Ingredients (Emergency)
+                        </button>
                     </div>
                 </div>
             </div >

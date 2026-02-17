@@ -274,6 +274,24 @@ export const PantryProvider = ({ children }) => {
         }
     };
 
+    const restoreDefaultIngredients = async () => {
+        if (!user || !db) return;
+        const defaults = [
+            { name: 'Whole Milk', category: 'Dairy', expiry: '7 days', status: 'fresh' },
+            { name: 'Truffle Eggs', category: 'Dairy', expiry: '10 days', status: 'fresh' },
+            { name: 'Butter', category: 'Dairy', expiry: '30 days', status: 'fresh' },
+            { name: 'Chicken Breast', category: 'Meat', expiry: '3 days', status: 'fresh' },
+            { name: 'Cheddar Cheese', category: 'Dairy', expiry: '14 days', status: 'fresh' },
+            { name: 'Apples', category: 'Fruits', expiry: '10 days', status: 'fresh' },
+        ];
+
+        console.log("🚑 Restoring defaults...");
+        for (const item of defaults) {
+            await addIngredient(item);
+        }
+        alert("Pantry restocked with basics! 🛒");
+    };
+
     const value = {
         ingredients,
         deletedIngredients,
@@ -283,7 +301,8 @@ export const PantryProvider = ({ children }) => {
         permanentlyDeleteIngredient,
         clearTrash,
         updateIngredient,
-        migrateLocalData, // Exposed for manual sync
+        migrateLocalData,
+        restoreDefaultIngredients, // New helper
         loading
     };
 
