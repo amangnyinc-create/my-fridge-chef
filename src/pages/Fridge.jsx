@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { usePantry } from '../context/PantryContext';
+import { useAuth } from '../context/AuthContext';
 
 const Fridge = () => {
     const { t, i18n } = useTranslation();
+    const { user } = useAuth();
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
@@ -359,6 +361,10 @@ const Fridge = () => {
                         </span>
                     )}
                 </button>
+            </div>
+            {/* Debug Footer */}
+            <div className="fixed bottom-0 left-0 w-full bg-black/80 text-white/50 text-[10px] p-1 text-center font-mono pointer-events-none z-[9999]">
+                Debug: {loading ? "Loading..." : `Items: ${ingredients.length} | Trash: ${deletedIngredients.length} | User: ${JSON.stringify(user?.uid || 'Guest')} | Mode: ${user ? 'Cloud (Firestore)' : 'Local'}`}
             </div>
         </div>
     );
