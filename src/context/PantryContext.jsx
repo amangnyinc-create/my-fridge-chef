@@ -29,46 +29,47 @@ export const PantryProvider = ({ children }) => {
     const [deletedIngredients, setDeletedIngredients] = useState([]); // Trash Bin
     const [loading, setLoading] = useState(true);
 
+    // Migration Logic (Exposed)
+    const migrateLocalData = async () => {
+        if (!user || !db) return;
+
+        // Check for local data to migrate
+        const localPantry = JSON.parse(localStorage.getItem('myPantryIngredients') || '[]');
+        const localTrash = JSON.parse(localStorage.getItem('myPantryTrash') || '[]');
+
+        if (localPantry.length > 0) {
+            console.log("🚚 Migrating local pantry to Firestore...");
+            const batchPromises = localPantry.map(async (item) => {
+                const { id, ...data } = item; // Remove local ID, let Firestore gen new one
+                return addDoc(collection(db, 'users', user.uid, 'pantry'), {
+                    ...data,
+                    dateAdded: item.dateAdded || new Date().toISOString()
+                });
+            });
+            await Promise.all(batchPromises);
+            localStorage.removeItem('myPantryIngredients'); // Clear after migration
+            console.log("✅ Pantry Migration Complete");
+        }
+
+        if (localTrash.length > 0) {
+            console.log("🚚 Migrating local trash to Firestore...");
+            const batchPromises = localTrash.map(async (item) => {
+                const { id, ...data } = item;
+                return setDoc(doc(db, 'users', user.uid, 'trash', String(id)), {
+                    ...data,
+                    dateDeleted: item.dateDeleted || new Date().toISOString()
+                });
+            });
+            await Promise.all(batchPromises);
+            localStorage.removeItem('myPantryTrash');
+            console.log("✅ Trash Migration Complete");
+        }
+    };
+
     // Sync Logic
     useEffect(() => {
         let unsubscribePantry = () => { };
         let unsubscribeTrash = () => { };
-
-        const migrateLocalData = async () => {
-            if (!user || !db) return;
-
-            // Check for local data to migrate
-            const localPantry = JSON.parse(localStorage.getItem('myPantryIngredients') || '[]');
-            const localTrash = JSON.parse(localStorage.getItem('myPantryTrash') || '[]');
-
-            if (localPantry.length > 0) {
-                console.log("🚚 Migrating local pantry to Firestore...");
-                const batchPromises = localPantry.map(async (item) => {
-                    const { id, ...data } = item; // Remove local ID, let Firestore gen new one
-                    return addDoc(collection(db, 'users', user.uid, 'pantry'), {
-                        ...data,
-                        dateAdded: item.dateAdded || new Date().toISOString()
-                    });
-                });
-                await Promise.all(batchPromises);
-                localStorage.removeItem('myPantryIngredients'); // Clear after migration
-                console.log("✅ Pantry Migration Complete");
-            }
-
-            if (localTrash.length > 0) {
-                console.log("🚚 Migrating local trash to Firestore...");
-                const batchPromises = localTrash.map(async (item) => {
-                    const { id, ...data } = item;
-                    return setDoc(doc(db, 'users', user.uid, 'trash', String(id)), {
-                        ...data,
-                        dateDeleted: item.dateDeleted || new Date().toISOString()
-                    });
-                });
-                await Promise.all(batchPromises);
-                localStorage.removeItem('myPantryTrash');
-                console.log("✅ Trash Migration Complete");
-            }
-        };
 
         if (user && db) {
             // Firestore Mode (Real Cloud Sync)
@@ -239,6 +240,7 @@ export const PantryProvider = ({ children }) => {
         permanentlyDeleteIngredient,
         clearTrash,
         updateIngredient,
+        migrateLocalData, // Exposed for manual sync
         loading
     };
 

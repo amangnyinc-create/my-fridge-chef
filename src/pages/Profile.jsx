@@ -10,7 +10,7 @@ import { usePantry } from '../context/PantryContext';
 const Profile = () => {
     const { t, i18n } = useTranslation();
     const { user, logout, updateProfile, changePassword } = useAuth();
-    const { clearPantry, ingredients } = usePantry();
+    const { clearPantry, ingredients, migrateLocalData } = usePantry();
     const [showDietary, setShowDietary] = useState(false);
     const [showPersonal, setShowPersonal] = useState(false);
     const [showSecurity, setShowSecurity] = useState(false);
@@ -242,6 +242,20 @@ const Profile = () => {
                     <div className="mt-2 pt-2 border-t border-gray-200">
                         <p className="font-bold">Migration Log:</p>
                         <p>{localStorage.getItem('myPantryIngredients') ? '⚠️ Local Data Exists (Not Synced)' : '✅ Local Data Clean'}</p>
+                        {localStorage.getItem('myPantryIngredients') && (
+                            <button
+                                onClick={async () => {
+                                    if (confirm("Restore ingredients from local storage?")) {
+                                        await migrateLocalData();
+                                        alert("Restoration Complete! Refreshing...");
+                                        window.location.reload();
+                                    }
+                                }}
+                                className="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-xs w-full"
+                            >
+                                🔄 Restore Lost Ingredients (Sync)
+                            </button>
+                        )}
                     </div>
                 </div>
             </div >
