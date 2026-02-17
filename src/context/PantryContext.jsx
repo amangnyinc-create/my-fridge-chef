@@ -225,20 +225,27 @@ export const PantryProvider = ({ children }) => {
 
     const removeIngredient = async (id) => {
         const itemToRemove = ingredients.find(i => i.id === id);
-        if (!itemToRemove) return;
+        if (!itemToRemove) {
+            console.warn("Item not found for deletion:", id);
+            return;
+        }
 
         if (user && db) {
             try {
-                // 1. Delete from Pantry
+                console.log("Moving to trash:", itemToRemove.name);
+                // 1. Add to Trash FIRST (Safety)
+                await setDoc(doc(db, 'users', user.uid, 'trash', String(id)), {
+                    ...itemToRemove,
+                    dateDeleted: new Date().toISOString()
+                });
+
+                // 2. Delete from Pantry ONLY if Trash save succeeded
                 await deleteDoc(doc(db, 'users', user.uid, 'pantry', String(id)));
-                // 2. Add to Trash
-                try {
-                    await setDoc(doc(db, 'users', user.uid, 'trash', String(id)), {
-                        ...itemToRemove,
-                        dateDeleted: new Date().toISOString()
-                    });
-                } catch (e) { console.error("Error moving to trash:", e); }
-            } catch (e) { console.error("Error deleting doc:", e); }
+                console.log("Moved to trash & deleted from pantry");
+            } catch (e) {
+                console.error("Error removing ingredient (Backup failed?):", e);
+                alert("Failed to move to trash. Item not deleted.");
+            }
         } else {
             // Local
             const filtered = ingredients.filter(item => item.id !== id);
@@ -250,26 +257,35 @@ export const PantryProvider = ({ children }) => {
 
     const restoreIngredient = async (id) => {
         const itemToRestore = deletedIngredients.find(i => i.id === id);
-        if (!itemToRestore) return;
+        if (!itemToRestore) {
+            console.warn("Item not found in trash:", id);
+            return;
+        }
 
         if (user && db) {
             try {
-                // 1. Delete from Trash
-                await deleteDoc(doc(db, 'users', user.uid, 'trash', String(id)));
-                // 2. Add to Pantry
+                console.log("Restoring:", itemToRestore.name);
                 const { dateDeleted, ...rest } = itemToRestore;
+
+                // 1. Add to Pantry FIRST (Safety)
+                // Use setDoc with Merge just in case, or overwrite based on ID
                 await setDoc(doc(db, 'users', user.uid, 'pantry', String(id)), {
                     ...rest,
                     dateAdded: new Date().toISOString()
                 });
-            } catch (e) { console.error("Error restoring:", e); }
+
+                // 2. Delete from Trash ONLY if Pantry save succeeded
+                await deleteDoc(doc(db, 'users', user.uid, 'trash', String(id)));
+                console.log("Restored & removed from trash");
+            } catch (e) {
+                console.error("Error restoring ingredient:", e);
+                alert("Failed to restore item. Still in trash.");
+            }
         } else {
-            // Local
+            // Local logic stays same (memory op is safe enough)
             const filteredTrash = deletedIngredients.filter(i => i.id !== id);
             saveLocalTrash(filteredTrash);
             const { dateDeleted, ...rest } = itemToRestore;
-            // re-add with original ID if possible, or new ID to avoid conflict? 
-            // Local logic simplified:
             saveLocalPantry([{ ...rest, dateAdded: new Date().toISOString() }, ...ingredients]);
         }
     };
