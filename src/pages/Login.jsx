@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 
 import { auth } from '../firebase'; // Added for connection check
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const { t } = useTranslation();
