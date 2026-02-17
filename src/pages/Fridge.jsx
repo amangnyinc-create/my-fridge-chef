@@ -219,7 +219,10 @@ const Fridge = () => {
 
             <header className="mb-8 flex justify-between items-center pt-2">
                 <div>
-                    <h1 className="text-3xl font-serif font-semibold text-[#1B263B] mb-1">{t('fridge.title')}</h1>
+                    <h1 className="text-3xl font-serif font-semibold text-[#1B263B] mb-1 flex items-center gap-2">
+                        {t('fridge.title')}
+                        {loading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-dashed border-[#C5A059]"></div>}
+                    </h1>
                     <p className="text-[#C5A059] text-xs font-medium tracking-widest uppercase">{t('fridge.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -284,53 +287,48 @@ const Fridge = () => {
                 </div>
             </div>
 
-            {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C5A059] mb-4"></div>
-                    <p className="font-serif italic animate-pulse">Syncing pantry...</p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {filteredIngredients.length === 0 && !searchTerm && (
-                        <div className="text-center py-20 text-gray-400 font-serif italic">
-                            Your pantry is empty. <br /> Tap + to add ingredients.
-                        </div>
-                    )}
-                    {filteredIngredients.map((item) => (
-                        <div key={item.id} className="bg-white p-5 rounded-2xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 flex items-center justify-between hover:border-[#E3F2FD] transition-all group">
-                            {/* ... existing item render ... */}
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-[#F9F7F2] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                                    {item.category === 'Dairy' ? '🥛' :
-                                        item.category === 'Veggies' ? '🥬' :
-                                            item.category === 'Fruit' ? '🍎' :
-                                                item.category === 'Meat' ? '🥩' :
-                                                    item.category === 'Seafood' ? '🐟' :
-                                                        item.category === 'Pantry' ? '🥫' :
-                                                            item.category === 'Bakery' ? '🥖' :
-                                                                item.category === 'Grains' ? '🍝' :
-                                                                    item.category === 'Frozen' ? '❄️' : '📦'}
-                                </div>
-                                <div>
-                                    <h3 className="font-serif font-medium text-[#1B263B] text-base">{translateIngredient(item.name)}</h3>
-                                    <div className="flex items-center mt-1">
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${getStatusColor(item.status)}`}>
-                                            {translateExpiry(item.expiry)}
-                                        </span>
-                                    </div>
+            {/* Loading Removed */}
+            <div className="space-y-4">
+                {filteredIngredients.length === 0 && !searchTerm && (
+                    <div className="text-center py-20 text-gray-400 font-serif italic">
+                        Your pantry is empty. <br /> Tap + to add ingredients.
+                    </div>
+                )}
+                {filteredIngredients.map((item) => (
+                    <div key={item.id} className="bg-white p-5 rounded-2xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] border border-gray-50 flex items-center justify-between hover:border-[#E3F2FD] transition-all group">
+                        {/* ... existing item render ... */}
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-[#F9F7F2] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                {item.category === 'Dairy' ? '🥛' :
+                                    item.category === 'Veggies' ? '🥬' :
+                                        item.category === 'Fruit' ? '🍎' :
+                                            item.category === 'Meat' ? '🥩' :
+                                                item.category === 'Seafood' ? '🐟' :
+                                                    item.category === 'Pantry' ? '🥫' :
+                                                        item.category === 'Bakery' ? '🥖' :
+                                                            item.category === 'Grains' ? '🍝' :
+                                                                item.category === 'Frozen' ? '❄️' : '📦'}
+                            </div>
+                            <div>
+                                <h3 className="font-serif font-medium text-[#1B263B] text-base">{translateIngredient(item.name)}</h3>
+                                <div className="flex items-center mt-1">
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${getStatusColor(item.status)}`}>
+                                        {translateExpiry(item.expiry)}
+                                    </span>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => removeIngredient(item.id)}
-                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
-                                title={t('fridge.deleteItem') || "Delete Item"}
-                            >
-                                <Trash2 size={20} />
-                            </button>
                         </div>
-                    ))}
-                </div>
-            )}
+                        <button
+                            onClick={() => removeIngredient(item.id)}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                            title={t('fridge.deleteItem') || "Delete Item"}
+                        >
+                            <Trash2 size={20} />
+                        </button>
+                    </div>
+                ))}
+            </div>
+            {/* End of List */}
 
             {/* Floating Action Buttons */}
             <div className="fixed bottom-24 left-6 right-6 z-40">
