@@ -363,8 +363,25 @@ const Fridge = () => {
                 </button>
             </div>
             {/* Debug Footer */}
-            <div className="fixed bottom-0 left-0 w-full bg-black/80 text-white/50 text-[10px] p-1 text-center font-mono pointer-events-none z-[9999]">
-                Debug: {loading ? "Loading..." : `Items: ${ingredients.length} | Trash: ${deletedIngredients.length} | User: ${JSON.stringify(user?.uid || 'Guest')} | Mode: ${user ? 'Cloud (Firestore)' : 'Local'}`}
+            <div className="fixed bottom-0 left-0 w-full bg-black/80 text-white/50 text-[10px] p-1 text-center font-mono pointer-events-none z-[9999] flex justify-center items-center gap-4">
+                <span>Debug: {loading ? "Loading..." : `Items: ${ingredients.length} | Trash: ${deletedIngredients.length} | User: ${JSON.stringify(user?.uid || 'Guest')}`}</span>
+                <button className="bg-red-500 text-white px-2 py-0.5 rounded pointer-events-auto" onClick={async () => {
+                    try {
+                        const { addDoc, collection } = await import('firebase/firestore');
+                        const { db } = await import('../firebase');
+                        if (!user) return alert("User not logged in!");
+                        await addDoc(collection(db, 'users', user.uid, 'pantry'), {
+                            name: "Test Item " + Date.now(),
+                            category: "Pantry",
+                            expiry: "Fresh",
+                            status: "fresh",
+                            dateAdded: new Date().toISOString()
+                        });
+                        alert("SUCCESS! Wrote to Firestore. Refresh now.");
+                    } catch (e) {
+                        alert("ERROR: " + e.message);
+                    }
+                }}>TEST DB</button>
             </div>
         </div>
     );
