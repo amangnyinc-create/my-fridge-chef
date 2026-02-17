@@ -222,6 +222,8 @@ const RecipeAssistant = () => {
                 id: recipe.id || Math.random(),
                 title: recipe.title || recipe.name || "Delicious Recipe",
                 description: recipe.description || "A tasty meal.",
+                // Use Pollinations AI for dynamic image generation based on title
+                image: `https://image.pollinations.ai/prompt/cooked food dish ${encodeURIComponent(recipe.title || recipe.name)} professional food photography?width=800&height=600&nologo=true&seed=${Math.random()}`,
                 steps: (Array.isArray(recipe.steps) && recipe.steps.length > 0) ? recipe.steps
                     : (recipe.instructions || (recipe.description ? recipe.description.split('. ').filter(s => s.length > 5) : ["Cook thoroughly."])),
                 stepTimers: Array.isArray(recipe.stepTimers) ? recipe.stepTimers : [],

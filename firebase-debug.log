@@ -1,0 +1,152 @@
+[debug] [2026-02-17T05:17:56.472Z] ----------------------------------------------------------------------
+[debug] [2026-02-17T05:17:56.474Z] Command:       /opt/homebrew/Cellar/node/25.6.0/bin/node /Users/misookpark/.npm/_npx/7750544ccf494d8b/node_modules/.bin/firebase deploy
+[debug] [2026-02-17T05:17:56.474Z] CLI Version:   15.6.0
+[debug] [2026-02-17T05:17:56.474Z] Platform:      darwin
+[debug] [2026-02-17T05:17:56.474Z] Node Version:  v25.6.0
+[debug] [2026-02-17T05:17:56.474Z] Time:          Tue Feb 17 2026 00:17:56 GMT-0500 (Eastern Standard Time)
+[debug] [2026-02-17T05:17:56.474Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-17T05:17:57.224Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-17T05:17:57.224Z] > authorizing via signed-in user (amangnyinc@gmail.com)
+[debug] [2026-02-17T05:17:57.224Z] [iam] checking project my-fridge-chef for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-02-17T05:17:57.225Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:57.225Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:57.225Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/my-fridge-chef:testIamPermissions [none]
+[debug] [2026-02-17T05:17:57.225Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/my-fridge-chef:testIamPermissions  x-goog-user-project=my-fridge-chef
+[debug] [2026-02-17T05:17:57.225Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/my-fridge-chef:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-02-17T05:17:57.485Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/my-fridge-chef:testIamPermissions 200
+[debug] [2026-02-17T05:17:57.486Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/my-fridge-chef:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-02-17T05:17:57.486Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:57.486Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:57.487Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/my-fridge-chef [none]
+[debug] [2026-02-17T05:17:57.823Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/my-fridge-chef 200
+[debug] [2026-02-17T05:17:57.823Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/my-fridge-chef {"projectId":"my-fridge-chef","projectNumber":"33273182301","displayName":"My Fridge Chef","name":"projects/my-fridge-chef","resources":{"hostingSite":"my-fridge-chef"},"state":"ACTIVE","etag":"1_ef3d2d7f-0ff5-4a86-ba3b-7fa0b24629c9"}
+[info] 
+[info] === Deploying to 'my-fridge-chef'...
+[info] 
+[info] i  deploying firestore, hosting 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2026-02-17T05:17:57.825Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:57.825Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:57.825Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/my-fridge-chef/databases/(default) [none]
+[debug] [2026-02-17T05:17:58.105Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/my-fridge-chef/databases/(default) 200
+[debug] [2026-02-17T05:17:58.105Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/my-fridge-chef/databases/(default) {"name":"projects/my-fridge-chef/databases/(default)","uid":"2ddc5dde-0da1-48eb-98f3-b43d710f538f","createTime":"2026-02-17T04:58:26.703148Z","updateTime":"2026-02-17T04:58:26.703148Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-02-17T04:58:26.703148Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IMjTvY7j35IDMOK9/fHe35ID"}
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2026-02-17T05:17:58.107Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:58.108Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:58.108Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/my-fridge-chef:test [none]
+[debug] [2026-02-17T05:17:58.108Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/my-fridge-chef:test [omitted]
+[debug] [2026-02-17T05:17:58.349Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/my-fridge-chef:test 200
+[debug] [2026-02-17T05:17:58.349Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/my-fridge-chef:test {}
+[info] ✔  cloud.firestore: rules file firestore.rules compiled successfully 
+[debug] [2026-02-17T05:17:58.352Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:58.352Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:58.352Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions [none]
+[debug] [2026-02-17T05:17:58.352Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-02-17T05:17:59.331Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions 200
+[debug] [2026-02-17T05:17:59.331Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions {"name":"projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-02-17T05:17:59.332Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:59.332Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:59.333Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/releases pageSize=10&pageToken=
+[debug] [2026-02-17T05:17:59.493Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/releases 200
+[debug] [2026-02-17T05:17:59.493Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/releases {"releases":[{"name":"projects/my-fridge-chef/releases/cloud.firestore","rulesetName":"projects/my-fridge-chef/rulesets/bf45120d-de94-4cef-8fec-d1df3e732a46","createTime":"2026-02-17T04:58:33.147393Z","updateTime":"2026-02-17T05:03:52.704188Z"}]}
+[debug] [2026-02-17T05:17:59.493Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:59.493Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:59.493Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/rulesets/bf45120d-de94-4cef-8fec-d1df3e732a46 [none]
+[debug] [2026-02-17T05:17:59.593Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/rulesets/bf45120d-de94-4cef-8fec-d1df3e732a46 200
+[debug] [2026-02-17T05:17:59.593Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/rulesets/bf45120d-de94-4cef-8fec-d1df3e732a46 [omitted]
+[info] i  firestore: latest version of firestore.rules already up to date, skipping upload... 
+[info] i  firestore: deploying indexes... 
+[info] i  hosting[my-fridge-chef]: beginning deploy... 
+[info] i  hosting[my-fridge-chef]: found 3 files in dist 
+[debug] [2026-02-17T05:17:59.609Z] [hosting] uploading with 200 concurrency
+[debug] [2026-02-17T05:17:59.647Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:59.647Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:17:59.648Z] [hosting] hash cache [ZGlzdA] stored for 3 files
+[debug] [2026-02-17T05:17:59.648Z] [hosting][hash queue][FINAL] {"max":33,"min":3,"avg":13,"active":0,"complete":3,"success":3,"errored":0,"retried":0,"total":3,"elapsed":35}
+[debug] [2026-02-17T05:17:59.648Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db:populateFiles [none]
+[debug] [2026-02-17T05:17:59.648Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db:populateFiles {"files":{"/index.html":"e476860b324639231bd530a6f2bdbf0f3fb3acb9f8978d675877455670717650","/assets/index-C2KNhAlm.css":"28723f0c02ab7c960884671f3d90da20937629568068602a0d21d89996c3c300","/assets/index-zKJKKkHR.js":"fb73f02e4cede6852130faad04076d559bdae0e2437479aaa665c07681a8ff30"}}
+[debug] [2026-02-17T05:18:00.025Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db:populateFiles 200
+[debug] [2026-02-17T05:18:00.025Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db:populateFiles {"uploadRequiredHashes":["28723f0c02ab7c960884671f3d90da20937629568068602a0d21d89996c3c300","fb73f02e4cede6852130faad04076d559bdae0e2437479aaa665c07681a8ff30","e476860b324639231bd530a6f2bdbf0f3fb3acb9f8978d675877455670717650"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files"}
+[debug] [2026-02-17T05:18:00.025Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:00.025Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:00.025Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:00.025Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:00.025Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:00.025Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:00.025Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/28723f0c02ab7c960884671f3d90da20937629568068602a0d21d89996c3c300 [none]
+[debug] [2026-02-17T05:18:00.025Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/28723f0c02ab7c960884671f3d90da20937629568068602a0d21d89996c3c300 [stream]
+[debug] [2026-02-17T05:18:00.026Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/fb73f02e4cede6852130faad04076d559bdae0e2437479aaa665c07681a8ff30 [none]
+[debug] [2026-02-17T05:18:00.026Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/fb73f02e4cede6852130faad04076d559bdae0e2437479aaa665c07681a8ff30 [stream]
+[debug] [2026-02-17T05:18:00.027Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/e476860b324639231bd530a6f2bdbf0f3fb3acb9f8978d675877455670717650 [none]
+[debug] [2026-02-17T05:18:00.027Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/e476860b324639231bd530a6f2bdbf0f3fb3acb9f8978d675877455670717650 [stream]
+[debug] [2026-02-17T05:18:00.027Z] [hosting][populate queue][FINAL] {"max":378,"min":378,"avg":378,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":380}
+[debug] [2026-02-17T05:18:00.027Z] [hosting] uploads queued: 3
+[debug] [2026-02-17T05:18:00.757Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/28723f0c02ab7c960884671f3d90da20937629568068602a0d21d89996c3c300 200
+[debug] [2026-02-17T05:18:00.758Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/28723f0c02ab7c960884671f3d90da20937629568068602a0d21d89996c3c300 [stream]
+[debug] [2026-02-17T05:18:01.234Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/e476860b324639231bd530a6f2bdbf0f3fb3acb9f8978d675877455670717650 200
+[debug] [2026-02-17T05:18:01.234Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/e476860b324639231bd530a6f2bdbf0f3fb3acb9f8978d675877455670717650 [stream]
+[debug] [2026-02-17T05:18:01.303Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/fb73f02e4cede6852130faad04076d559bdae0e2437479aaa665c07681a8ff30 200
+[debug] [2026-02-17T05:18:01.303Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/my-fridge-chef/versions/10257f9b6c4184db/files/fb73f02e4cede6852130faad04076d559bdae0e2437479aaa665c07681a8ff30 [stream]
+[debug] [2026-02-17T05:18:01.303Z] [hosting][upload queue][FINAL] {"max":1278,"min":733,"avg":1073.3333333333333,"active":0,"complete":3,"success":3,"errored":0,"retried":0,"total":3,"elapsed":1278}
+[info] ✔  hosting[my-fridge-chef]: file upload complete 
+[debug] [2026-02-17T05:18:01.304Z] [hosting] deploy completed after 1706ms
+[debug] [2026-02-17T05:18:01.304Z] [rules] releasing cloud.firestore/(default) with ruleset projects/my-fridge-chef/rulesets/bf45120d-de94-4cef-8fec-d1df3e732a46
+[debug] [2026-02-17T05:18:01.304Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:01.304Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:01.304Z] >>> [apiv2][query] PATCH https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/releases/cloud.firestore/(default) [none]
+[debug] [2026-02-17T05:18:01.304Z] >>> [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/releases/cloud.firestore/(default) {"release":{"name":"projects/my-fridge-chef/releases/cloud.firestore/(default)","rulesetName":"projects/my-fridge-chef/rulesets/bf45120d-de94-4cef-8fec-d1df3e732a46"}}
+[debug] [2026-02-17T05:18:01.588Z] <<< [apiv2][status] PATCH https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/releases/cloud.firestore/(default) 200
+[debug] [2026-02-17T05:18:01.588Z] <<< [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/my-fridge-chef/releases/cloud.firestore/(default) {"name":"projects/my-fridge-chef/releases/cloud.firestore","rulesetName":"projects/my-fridge-chef/rulesets/bf45120d-de94-4cef-8fec-d1df3e732a46","createTime":"2026-02-17T04:58:33.147393Z","updateTime":"2026-02-17T05:18:01.527717Z"}
+[debug] [2026-02-17T05:18:01.588Z] [rules] updated release projects/my-fridge-chef/releases/cloud.firestore
+[info] ✔  firestore: released rules firestore.rules to cloud.firestore 
+[debug] [2026-02-17T05:18:01.589Z] [
+  {
+    "config": {
+      "public": "dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "my-fridge-chef"
+    },
+    "version": "projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db"
+  }
+]
+[info] i  hosting[my-fridge-chef]: finalizing version... 
+[debug] [2026-02-17T05:18:01.590Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:01.590Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:01.590Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions/10257f9b6c4184db updateMask=status%2Cconfig
+[debug] [2026-02-17T05:18:01.590Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions/10257f9b6c4184db {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]}}
+[debug] [2026-02-17T05:18:02.186Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions/10257f9b6c4184db 200
+[debug] [2026-02-17T05:18:02.186Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/versions/10257f9b6c4184db {"name":"projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-02-17T05:17:58.795729Z","createUser":{"email":"amangnyinc@gmail.com"},"finalizeTime":"2026-02-17T05:18:02.095794Z","finalizeUser":{"email":"amangnyinc@gmail.com"}}
+[debug] [2026-02-17T05:18:02.186Z] [hosting] finalized version for my-fridge-chef:[object Object]
+[info] ✔  hosting[my-fridge-chef]: version finalized 
+[info] i  hosting[my-fridge-chef]: releasing new version... 
+[debug] [2026-02-17T05:18:02.187Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:02.187Z] Checked if tokens are valid: true, expires at: 1771306456867
+[debug] [2026-02-17T05:18:02.187Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/channels/live/releases versionName=projects%2F33273182301%2Fsites%2Fmy-fridge-chef%2Fversions%2F10257f9b6c4184db
+[debug] [2026-02-17T05:18:02.187Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/channels/live/releases {}
+[debug] [2026-02-17T05:18:02.806Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/channels/live/releases 200
+[debug] [2026-02-17T05:18:02.806Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/my-fridge-chef/channels/live/releases {"name":"projects/33273182301/sites/my-fridge-chef/channels/live/releases/1771305482057000","version":{"name":"projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-02-17T05:17:58.795729Z","createUser":{"email":"amangnyinc@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIVmtOsPdUxUSoJ6-cQ5_i_kmxdbilHAuF8SgeM_Le-aKcER25W"},"finalizeTime":"2026-02-17T05:18:02.095794Z","finalizeUser":{"email":"amangnyinc@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIVmtOsPdUxUSoJ6-cQ5_i_kmxdbilHAuF8SgeM_Le-aKcER25W"}},"type":"DEPLOY","releaseTime":"2026-02-17T05:18:02.057Z","releaseUser":{"email":"amangnyinc@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIVmtOsPdUxUSoJ6-cQ5_i_kmxdbilHAuF8SgeM_Le-aKcER25W"}}
+[debug] [2026-02-17T05:18:02.806Z] [hosting] release: {"name":"projects/33273182301/sites/my-fridge-chef/channels/live/releases/1771305482057000","version":{"name":"projects/33273182301/sites/my-fridge-chef/versions/10257f9b6c4184db","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-02-17T05:17:58.795729Z","createUser":{"email":"amangnyinc@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIVmtOsPdUxUSoJ6-cQ5_i_kmxdbilHAuF8SgeM_Le-aKcER25W"},"finalizeTime":"2026-02-17T05:18:02.095794Z","finalizeUser":{"email":"amangnyinc@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIVmtOsPdUxUSoJ6-cQ5_i_kmxdbilHAuF8SgeM_Le-aKcER25W"}},"type":"DEPLOY","releaseTime":"2026-02-17T05:18:02.057Z","releaseUser":{"email":"amangnyinc@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIVmtOsPdUxUSoJ6-cQ5_i_kmxdbilHAuF8SgeM_Le-aKcER25W"}}
+[info] ✔  hosting[my-fridge-chef]: release complete 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/my-fridge-chef/overview
+[info] Hosting URL: https://my-fridge-chef.web.app
+[debug] [2026-02-17T05:18:07.843Z] Error: Timed out.
+    at Timeout._onTimeout (/Users/misookpark/.npm/_npx/7750544ccf494d8b/node_modules/firebase-tools/lib/utils.js:308:49)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+[error] 
+[error] Error: An unexpected error has occurred.

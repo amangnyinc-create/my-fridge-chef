@@ -93,7 +93,7 @@ const Fridge = () => {
     };
 
     return (
-        <div className="p-6 pb-24 min-h-screen bg-[#FAF9F6] font-sans relative">
+        <div className="p-6 pb-64 min-h-screen bg-[#FAF9F6] font-sans relative">
             {/* Add Item Modal */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center animate-fade-in p-4">
