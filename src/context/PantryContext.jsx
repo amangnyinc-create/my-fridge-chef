@@ -41,8 +41,8 @@ export const PantryProvider = ({ children }) => {
                 // --- FIRESTORE MODE (Authenticated) ---
                 console.log("� Authenticated! Connecting to Firestore...");
 
-                // A. Migration Check (Run ONCE on mount/login)
-                await performMigration(user);
+                // A. Migration Check (Run ONCE on mount/login - Background)
+                performMigration(user).catch(e => console.error("Migration Error:", e));
 
                 // B. Pantry Subscription (Real-time)
                 const pantryRef = collection(db, 'users', user.uid, 'pantry');
