@@ -10,7 +10,8 @@ import {
     onSnapshot,
     query,
     orderBy,
-    setDoc
+    setDoc,
+    getDocs // Added
 } from 'firebase/firestore';
 
 const PantryContext = createContext();
@@ -42,15 +43,32 @@ export const PantryProvider = ({ children }) => {
             console.log("🚚 Migrating local pantry to Firestore...");
             const remainingPantry = [];
 
+            // Fetch current Firestore items to prevent duplicates
+            let currentItems = [];
+            try {
+                const snapshot = await getDocs(collection(db, 'users', user.uid, 'pantry'));
+                currentItems = snapshot.docs.map(doc => doc.data());
+            } catch (e) {
+                console.warn("Could not fetch current items for duplicate check", e);
+            }
+
             for (let i = 0; i < localPantry.length; i++) {
                 const item = localPantry[i];
                 try {
-                    const { id, ...data } = item;
-                    await addDoc(collection(db, 'users', user.uid, 'pantry'), {
-                        ...data,
-                        dateAdded: item.dateAdded || new Date().toISOString()
-                    });
-                    // Success! Item is successfully moved to Cloud, so we drop it from Local.
+                    // Duplicate Check: Same name?
+                    const isDuplicate = currentItems.some(existing => existing.name === item.name);
+
+                    if (!isDuplicate) {
+                        const { id, ...data } = item;
+                        await addDoc(collection(db, 'users', user.uid, 'pantry'), {
+                            ...data,
+                            dateAdded: item.dateAdded || new Date().toISOString()
+                        });
+                        console.log("Moved:", item.name);
+                    } else {
+                        console.log("Skipping duplicate:", item.name);
+                    }
+                    // Success (or skipped)! Item is processed, so we drop it from Local.
                 } catch (e) {
                     console.error("Migration Error (Item):", e);
                     remainingPantry.push(item); // Keep failed item
