@@ -80,6 +80,7 @@ export const PantryProvider = ({ children }) => {
 
     // Sync Logic
     useEffect(() => {
+        setLoading(true); // Prevent flickering (show loading while switching modes)
         let unsubscribePantry = () => { };
         let unsubscribeTrash = () => { };
 
