@@ -39,28 +39,40 @@ export const PantryProvider = ({ children }) => {
 
         if (localPantry.length > 0) {
             console.log("🚚 Migrating local pantry to Firestore...");
-            const batchPromises = localPantry.map(async (item) => {
-                const { id, ...data } = item; // Remove local ID, let Firestore gen new one
-                return addDoc(collection(db, 'users', user.uid, 'pantry'), {
-                    ...data,
-                    dateAdded: item.dateAdded || new Date().toISOString()
-                });
-            });
-            await Promise.all(batchPromises);
-            localStorage.removeItem('myPantryIngredients'); // Clear after migration
+            // Process one by one to avoid total failure
+            for (const item of localPantry) {
+                try {
+                    const { id, ...data } = item;
+                    await addDoc(collection(db, 'users', user.uid, 'pantry'), {
+                        ...data,
+                        dateAdded: item.dateAdded || new Date().toISOString()
+                    });
+                } catch (e) {
+                    console.error("Migration Error (Item):", e);
+                    // If Permission Denied, stop trying to avoid spamming errors
+                    if (e.code === 'permission-denied') {
+                        alert("Error: Server Permission Denied. Please contact support.");
+                        return;
+                    }
+                }
+            }
+            localStorage.removeItem('myPantryIngredients'); // Clear ONLY if loop finishes
             console.log("✅ Pantry Migration Complete");
         }
 
         if (localTrash.length > 0) {
             console.log("🚚 Migrating local trash to Firestore...");
-            const batchPromises = localTrash.map(async (item) => {
-                const { id, ...data } = item;
-                return setDoc(doc(db, 'users', user.uid, 'trash', String(id)), {
-                    ...data,
-                    dateDeleted: item.dateDeleted || new Date().toISOString()
-                });
-            });
-            await Promise.all(batchPromises);
+            for (const item of localTrash) {
+                try {
+                    const { id, ...data } = item;
+                    await setDoc(doc(db, 'users', user.uid, 'trash', String(id)), {
+                        ...data,
+                        dateDeleted: item.dateDeleted || new Date().toISOString()
+                    });
+                } catch (e) {
+                    console.error("Migration Trash Error:", e);
+                }
+            }
             localStorage.removeItem('myPantryTrash');
             console.log("✅ Trash Migration Complete");
         }
