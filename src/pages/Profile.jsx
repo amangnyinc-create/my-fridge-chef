@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Settings, LogOut, ChevronRight, Heart, Bell, Shield, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { auth, db } from '../firebase'; // Import Firebase Config
 
 import { useAuth } from '../context/AuthContext';
 import { usePantry } from '../context/PantryContext';
@@ -221,6 +222,28 @@ const Profile = () => {
                     <LogOut size={18} />
                     <span>{t('common.logout')}</span>
                 </button>
+
+                {/* Debug / Status Section */}
+                <div className="mt-8 p-4 bg-gray-100 rounded-xl text-xs text-gray-500 font-mono space-y-1">
+                    <p className="font-bold mb-2">System Status (Debug)</p>
+                    <p>User ID: {user?.uid || user?.id || 'Guest'}</p>
+                    <p>Mode: {auth ? '🔥 Firebase' : '💾 Local Mock'}</p>
+                    <p>DB Connected: {db ? '✅ Yes' : '❌ No (Check Env Vars)'}</p>
+                    <p>Pantry Count: {ingredients?.length || 0} items</p>
+                    <button
+                        onClick={() => {
+                            console.log("Forcing Refresh...");
+                            window.location.reload();
+                        }}
+                        className="mt-2 text-blue-500 underline"
+                    >
+                        Force Refresh App
+                    </button>
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                        <p className="font-bold">Migration Log:</p>
+                        <p>{localStorage.getItem('myPantryIngredients') ? '⚠️ Local Data Exists (Not Synced)' : '✅ Local Data Clean'}</p>
+                    </div>
+                </div>
             </div >
         </div >
     );
