@@ -11,7 +11,8 @@ import {
     query,
     orderBy,
     setDoc,
-    getDocs // Added
+    getDocs, // Re-added
+    where // Re-added
 } from 'firebase/firestore';
 
 const PantryContext = createContext();
@@ -191,6 +192,19 @@ export const PantryProvider = ({ children }) => {
     const addIngredient = async (item) => {
         if (user && db) {
             try {
+                // 1. Check for Duplicate (Name-based)
+                const q = query(
+                    collection(db, 'users', user.uid, 'pantry'),
+                    where("name", "==", item.name)
+                );
+                const snapshot = await getDocs(q);
+
+                if (!snapshot.empty) {
+                    console.log(`Duplicate '${item.name}' detected. Skipping add.`);
+                    return; // Stop here. Do not add duplicate.
+                }
+
+                // 2. Add New
                 const { id, ...data } = item;
                 await addDoc(collection(db, 'users', user.uid, 'pantry'), {
                     ...data,
@@ -200,6 +214,10 @@ export const PantryProvider = ({ children }) => {
                 console.error("Error adding doc:", e);
             }
         } else {
+            // Local Mode Duplicate Check
+            const isDuplicate = ingredients.some(existing => existing.name === item.name);
+            if (isDuplicate) return;
+
             const newItem = { ...item, id: Date.now() };
             saveLocalPantry([newItem, ...ingredients]);
         }
