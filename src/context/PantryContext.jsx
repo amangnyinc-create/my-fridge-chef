@@ -34,34 +34,53 @@ export const PantryProvider = ({ children }) => {
         if (!user || !db) return;
 
         // Check for local data to migrate
-        const localPantry = JSON.parse(localStorage.getItem('myPantryIngredients') || '[]');
-        const localTrash = JSON.parse(localStorage.getItem('myPantryTrash') || '[]');
+        let localPantry = JSON.parse(localStorage.getItem('myPantryIngredients') || '[]');
+        let localTrash = JSON.parse(localStorage.getItem('myPantryTrash') || '[]');
 
+        // 1. Migrate Pantry Items
         if (localPantry.length > 0) {
             console.log("🚚 Migrating local pantry to Firestore...");
-            // Process one by one to avoid total failure
-            for (const item of localPantry) {
+            const remainingPantry = [];
+
+            for (let i = 0; i < localPantry.length; i++) {
+                const item = localPantry[i];
                 try {
                     const { id, ...data } = item;
                     await addDoc(collection(db, 'users', user.uid, 'pantry'), {
                         ...data,
                         dateAdded: item.dateAdded || new Date().toISOString()
                     });
+                    // Success! Item is successfully moved to Cloud, so we drop it from Local.
                 } catch (e) {
                     console.error("Migration Error (Item):", e);
-                    // If Permission Denied, stop trying to avoid spamming errors
+                    remainingPantry.push(item); // Keep failed item
+
                     if (e.code === 'permission-denied') {
-                        alert("Error: Server Permission Denied. Please contact support.");
-                        return;
+                        // Critical Auth Error: Stop trying, and preserve ALL remaining items locally.
+                        console.warn("Permission Denied. Stopping migration.");
+                        for (let j = i + 1; j < localPantry.length; j++) {
+                            remainingPantry.push(localPantry[j]);
+                        }
+                        break;
                     }
                 }
             }
-            localStorage.removeItem('myPantryIngredients'); // Clear ONLY if loop finishes
-            console.log("✅ Pantry Migration Complete");
+
+            // Update Local Storage with only failed/remaining items
+            if (remainingPantry.length === 0) {
+                localStorage.removeItem('myPantryIngredients');
+                console.log("✅ Pantry Migration Complete (All Success)");
+            } else {
+                localStorage.setItem('myPantryIngredients', JSON.stringify(remainingPantry));
+                console.warn("⚠️ Pantry Migration Partial. Remaining:", remainingPantry.length);
+            }
         }
 
+        // 2. Migrate Trash Items
         if (localTrash.length > 0) {
             console.log("🚚 Migrating local trash to Firestore...");
+            const remainingTrash = [];
+
             for (const item of localTrash) {
                 try {
                     const { id, ...data } = item;
@@ -71,10 +90,16 @@ export const PantryProvider = ({ children }) => {
                     });
                 } catch (e) {
                     console.error("Migration Trash Error:", e);
+                    remainingTrash.push(item);
                 }
             }
-            localStorage.removeItem('myPantryTrash');
-            console.log("✅ Trash Migration Complete");
+
+            if (remainingTrash.length === 0) {
+                localStorage.removeItem('myPantryTrash');
+                console.log("✅ Trash Migration Complete");
+            } else {
+                localStorage.setItem('myPantryTrash', JSON.stringify(remainingTrash));
+            }
         }
     };
 
