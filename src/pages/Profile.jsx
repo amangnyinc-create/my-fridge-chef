@@ -10,7 +10,7 @@ import { usePantry } from '../context/PantryContext';
 const Profile = () => {
     const { t, i18n } = useTranslation();
     const { user, logout, updateProfile, changePassword } = useAuth();
-    const { clearPantry } = usePantry();
+    const { clearPantry, ingredients } = usePantry();
     const [showDietary, setShowDietary] = useState(false);
     const [showPersonal, setShowPersonal] = useState(false);
     const [showSecurity, setShowSecurity] = useState(false);
