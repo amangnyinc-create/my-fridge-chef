@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Logo from '../components/Logo';
 
-import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase'; // Added for connection check
 
 const Login = () => {
     const { t } = useTranslation();
@@ -14,6 +14,8 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const isCloudConnected = !!auth;
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -46,6 +48,15 @@ const Login = () => {
                 </div>
                 <h1 className="text-3xl font-serif font-medium text-[#1B263B] mb-2">{t('login.welcome_back')}</h1>
                 <p className="text-[#1B263B]/60 font-sans text-sm tracking-wide">{t('login.subtitle')}</p>
+
+                {/* Cloud Connection Status Indicator */}
+                {!isCloudConnected && (
+                    <div className="mt-4 bg-yellow-50 text-yellow-800 text-xs p-2 rounded-lg border border-yellow-200">
+                        ⚠️ <b>Cloud Disconnected (Offline Mode)</b><br />
+                        Running locally. Accounts will NOT sync between phone & web.<br />
+                        (Please set Vercel Environment Variables)
+                    </div>
+                )}
             </div>
 
             {error && (
