@@ -215,7 +215,8 @@ export const PantryProvider = ({ children }) => {
     };
 
     const removeIngredient = async (id) => {
-        const item = ingredients.find(i => i.id === id);
+        // Robust ID Find
+        const item = ingredients.find(i => String(i.id) === String(id));
         if (!item) return;
 
         if (user && db) {
@@ -237,7 +238,7 @@ export const PantryProvider = ({ children }) => {
             }
         } else {
             // Local
-            const newIngredients = ingredients.filter(i => i.id !== id);
+            const newIngredients = ingredients.filter(i => String(i.id) !== String(id));
             setIngredients(newIngredients);
             localStorage.setItem('myPantryIngredients', JSON.stringify(newIngredients));
 
@@ -249,7 +250,7 @@ export const PantryProvider = ({ children }) => {
 
     const restoreIngredient = async (id) => {
         // Note: id here is the TRASH doc id
-        const item = deletedIngredients.find(i => i.id === id);
+        const item = deletedIngredients.find(i => String(i.id) === String(id));
         if (!item) return;
 
         if (user && db) {
@@ -278,7 +279,7 @@ export const PantryProvider = ({ children }) => {
             }
         } else {
             // Local
-            const newTrash = deletedIngredients.filter(i => i.id !== id);
+            const newTrash = deletedIngredients.filter(i => String(i.id) !== String(id));
             setDeletedIngredients(newTrash);
             localStorage.setItem('myPantryTrash', JSON.stringify(newTrash));
 
@@ -298,7 +299,7 @@ export const PantryProvider = ({ children }) => {
                 alert("Failed to delete permanently.");
             }
         } else {
-            const newTrash = deletedIngredients.filter(i => i.id !== id);
+            const newTrash = deletedIngredients.filter(i => String(i.id) !== String(id));
             setDeletedIngredients(newTrash);
             localStorage.setItem('myPantryTrash', JSON.stringify(newTrash));
         }
