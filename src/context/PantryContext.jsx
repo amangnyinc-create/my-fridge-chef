@@ -117,9 +117,13 @@ export const PantryProvider = ({ children }) => {
 
             // 1. Pantry Subscription
             const pantryRef = collection(db, 'users', user.uid, 'pantry');
-            const qPantry = query(pantryRef, orderBy('dateAdded', 'desc'));
+            // Debug: Remove orderBy temporarily to find missing items
+            // const qPantry = query(pantryRef, orderBy('dateAdded', 'desc')); 
+            const qPantry = query(pantryRef);
+
             unsubscribePantry = onSnapshot(qPantry, (snapshot) => {
                 const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("🔥 Firestore Pantry Update:", items.length, "items");
                 setIngredients(items);
                 setLoading(false);
             }, (error) => {
@@ -129,7 +133,8 @@ export const PantryProvider = ({ children }) => {
 
             // 2. Trash Subscription
             const trashRef = collection(db, 'users', user.uid, 'trash');
-            const qTrash = query(trashRef, orderBy('dateDeleted', 'desc'));
+            // Debug: Remove orderBy
+            const qTrash = query(trashRef);
             unsubscribeTrash = onSnapshot(qTrash, (snapshot) => {
                 const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setDeletedIngredients(items);
